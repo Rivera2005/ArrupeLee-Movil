@@ -10,6 +10,7 @@ import {
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CustomAlert from "../Components/CustomAlert";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Feather } from "@expo/vector-icons";
 
 type RootStackParamList = {
   Login: undefined;
@@ -26,11 +27,12 @@ type Props = {
 };
 
 export default function LoginScreen({ navigation }: Props) {
-  const [carnet, setcarnet] = useState("");
+  const [carnet, setCarnet] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigateTo = (screen: keyof RootStackParamList) => {
     navigation.navigate(screen);
@@ -38,9 +40,8 @@ export default function LoginScreen({ navigation }: Props) {
 
   const handleLogin = async () => {
     try {
-      // Hacer fetch a la URL del web service
       const response = await fetch(
-        "http://192.168.0.14:8085/arrupe/sv/arrupe/usuarios",
+        "http://192.242.6.101:8085/arrupe/sv/arrupe/usuarios",
         {
           method: "GET",
           headers: {
@@ -56,15 +57,11 @@ export default function LoginScreen({ navigation }: Props) {
         );
       }
 
-      // Parsear los datos obtenidos de la respuesta
       const data = await response.json();
 
-      // Buscar el usuario que coincide con el carnet ingresado
       const usuario = data.find((user: any) => user[1] === carnet);
 
-      // Validar si se encontró el usuario y si la contraseña coincide
       if (usuario && usuario[4] === password) {
-        // Guardar los datos del usuario en AsyncStorage
         await AsyncStorage.setItem("userId", usuario[0].toString());
         await AsyncStorage.setItem("userNombre", usuario[2]);
         await AsyncStorage.setItem("userApellido", usuario[3]);
@@ -79,13 +76,16 @@ export default function LoginScreen({ navigation }: Props) {
           navigation.navigate("Home");
         }, 1000);
       } else {
-        // Mostrar error si las credenciales son incorrectas
         setError("Credenciales inválidas");
       }
     } catch (err) {
       console.error("Error de conexión:", err.message);
       setError("Error al conectar con el servidor");
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -101,16 +101,28 @@ export default function LoginScreen({ navigation }: Props) {
           placeholder="Carné N°"
           placeholderTextColor="#999"
           value={carnet}
-          onChangeText={setcarnet}
+          onChangeText={setCarnet}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Contraseña"
-          placeholderTextColor="#999"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Contraseña"
+            placeholderTextColor="#999"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+          />
+          <TouchableOpacity
+            onPress={togglePasswordVisibility}
+            style={styles.eyeIcon}
+          >
+            <Feather
+              name={showPassword ? "eye" : "eye-off"}
+              size={24}
+              color="#999"
+            />
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <Text style={styles.buttonText}>ENTRAR</Text>
         </TouchableOpacity>
@@ -130,7 +142,6 @@ export default function LoginScreen({ navigation }: Props) {
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -197,5 +208,24 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     marginTop: 5,
     fontSize: 12,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  passwordInput: {
+    flex: 1,
+    height: 50,
+    borderColor: "#FFFFFF",
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    fontSize: 16,
+    backgroundColor: "#FFFFFF",
+  },
+  eyeIcon: {
+    position: "absolute",
+    right: 10,
   },
 });

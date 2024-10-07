@@ -4,10 +4,10 @@
     "slug": "ArrupeLee-Movil",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/iconoArrupeLee.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/arrupelee-splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

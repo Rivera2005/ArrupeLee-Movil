@@ -23,7 +23,7 @@ const DetalleLeccionScreen = ({ route }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#512DA8", // Un tono más oscuro para la barra de estado
+    backgroundColor: "#512DA8",
   },
   container: {
     flex: 1,

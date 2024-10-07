@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { View, FlatList, StyleSheet, Text } from "react-native";
 import LessonItem from "./LessonItem";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useCallback } from "react"; // Importa useCallback
 
 type RootStackParamList = {
   Login: undefined;
@@ -18,90 +19,86 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
   const [lessons, setLessons] = useState([]);
   const navigation = useNavigation();
 
-  // Cargar y filtrar lecciones
-  useEffect(() => {
-    const loadLessons = async () => {
-      try {
-        const userId = await AsyncStorage.getItem("userId"); // Obtener el userId de AsyncStorage
-        if (!userId) {
-          console.warn("No se encontró el userId en AsyncStorage.");
-          return; // Si no hay userId, no continuamos
-        }
-
-        const response = await fetch(
-          `http://192.168.0.14:8085/arrupe/sv/arrupe/lecciones`
-        );
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          throw new Error(
-            `HTTP error! Status: ${response.status}, Message: ${errorText}`
-          );
-        }
-
-        const textResponse = await response.text(); // Obtener la respuesta como texto
-
-        const fetchedLessons = JSON.parse(textResponse); // Aquí se obtiene el JSON directamente
-
-        // Filtrar lecciones basadas en el nivel educativo, literario y habilitación
-        const filteredLessons = fetchedLessons.filter((lesson) => {
-          return (
-            lesson[4] === userNivelEducativo && // Comparar con nivel educativo
-            lesson[3] === userNivelLiterario && // Comparar con nivel literario
-            lesson[6] === "HABILITADO" // Solo las lecciones habilitadas
-          );
-        });
-
-        if (filteredLessons.length === 0) {
-          console.warn(
-            "No se encontraron lecciones que coincidan con los criterios."
-          );
-        }
-
-        // Obtener el progreso de cada lección
-        const updatedLessons = await Promise.all(
-          filteredLessons.map(async (lesson) => {
-            try {
-              const progressResponse = await fetch(
-                `http://192.168.0.14:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
-              );
-
-              if (!progressResponse.ok) {
-                const errorText = await progressResponse.text();
-                console.error(
-                  `Error al obtener progreso: ${progressResponse.status}, ${errorText}`
-                );
-                throw new Error(
-                  `Error al obtener progreso para la lección ${lesson[0]}`
-                );
-              }
-
-              const progressData = await progressResponse.json();
-
-              return {
-                ...lesson,
-                progress: progressData.porcentajeCompletado || 0, // Asigna el porcentaje completado
-              };
-            } catch (error) {
-              console.error(error.message);
-              return {
-                ...lesson,
-                progress: 0, // Valor predeterminado en caso de error
-              };
-            }
-          })
-        );
-
-        setLessons(updatedLessons);
-      } catch (error) {
-        console.error("Error en loadLessons:", error.message);
+  const loadLessons = async () => {
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      if (!userId) {
+        console.warn("No se encontró el userId en AsyncStorage.");
+        return;
       }
-    };
 
-    if (userNivelEducativo && userNivelLiterario) {
-      loadLessons();
+      const response = await fetch(
+        `http://192.242.6.101:8085/arrupe/sv/arrupe/lecciones`
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! Status: ${response.status}, Message: ${errorText}`
+        );
+      }
+
+      const textResponse = await response.text();
+      const fetchedLessons = JSON.parse(textResponse);
+
+      const filteredLessons = fetchedLessons.filter((lesson) => {
+        return (
+          lesson[4] === userNivelEducativo &&
+          lesson[3] === userNivelLiterario &&
+          lesson[6] === "HABILITADO"
+        );
+      });
+
+      if (filteredLessons.length === 0) {
+        console.warn(
+          "No se encontraron lecciones que coincidan con los criterios."
+        );
+      }
+
+      // Obtener progreso para cada lección
+      const updatedLessons = await Promise.all(
+        filteredLessons.map(async (lesson) => {
+          let progress = 0;
+          try {
+            const progressResponse = await fetch(
+              `http://192.242.6.101:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+            );
+
+            if (progressResponse.ok) {
+              const progressData = await progressResponse.json();
+              progress = progressData.porcentajeCompletado || 0;
+            } else {
+              console.log(
+                `No se pudo obtener el progreso para la lección ${lesson[0]}. Estableciendo progreso en 0.`
+              );
+            }
+          } catch (error) {
+            console.error(
+              `Error al obtener progreso para la lección ${lesson[0]}: ${error.message}`
+            );
+          }
+
+          return {
+            ...lesson,
+            progress,
+          };
+        })
+      );
+
+      setLessons(updatedLessons);
+    } catch (error) {
+      console.error("Error en loadLessons:", error.message);
     }
-  }, [userNivelEducativo, userNivelLiterario]);
+  };
+
+  // Usamos useFocusEffect para recargar las lecciones cuando se enfoca la pantalla
+  useFocusEffect(
+    useCallback(() => {
+      if (userNivelEducativo && userNivelLiterario) {
+        loadLessons();
+      }
+    }, [userNivelEducativo, userNivelLiterario])
+  );
 
   const navigateToLesson = (id) => {
     navigation.navigate("DetalleLecciones", { lessonId: id });
@@ -109,9 +106,9 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
 
   const renderItem = ({ item }) => (
     <LessonItem
-      title={item[1]} // El nombre de la lección está en la posición 1 del array
-      progress={item.progress || 0} // Usa el progreso actualizado
-      onPress={() => navigateToLesson(item[0])} // El ID está en la posición 0 del array
+      title={item[1]}
+      progress={item.progress || 0}
+      onPress={() => navigateToLesson(item[0])}
     />
   );
 
@@ -120,7 +117,7 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
       <FlatList
         data={lessons}
         renderItem={renderItem}
-        keyExtractor={(item) => item[0].toString()} // Usamos el ID (posición 0) como key
+        keyExtractor={(item) => item[0].toString()}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             No hay lecciones disponibles para este nivel.

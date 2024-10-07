@@ -62,7 +62,6 @@ const styles = StyleSheet.create({
   },
   selectedPlanet: {
     opacity: 1,
-    // Efecto de brillo
     shadowColor: "#fff",
     shadowOffset: {
       width: 0,

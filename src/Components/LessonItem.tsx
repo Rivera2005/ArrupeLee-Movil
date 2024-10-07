@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   progressContainer: {
-    height: 5,
+    height: 7,
     backgroundColor: "#E0E0E0",
     borderRadius: 2.5,
     overflow: "hidden",

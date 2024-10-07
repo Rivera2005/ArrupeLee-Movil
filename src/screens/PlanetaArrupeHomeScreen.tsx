@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, Image, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BitacoraDeVuelo from "../Components/BitacoraDeVuelo";
 
 type RootStackParamList = {
   Login: undefined;
@@ -54,13 +47,10 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
       console.error("Error al guardar el nivel literario:", error);
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
-
       <Header />
-
       <NavigationBar />
       <ScrollView style={styles.content}>
         {userNombre && (
@@ -77,9 +67,7 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
               style={styles.planet}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => handleButtonPress("INFERENCIAL")}
-          >
+          <TouchableOpacity onPress={() => handleButtonPress("INFERENCIAL")}>
             <Image
               source={require("../../assets/nivelInferencial.png")}
               style={styles.planet}
@@ -97,18 +85,7 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
           <Text style={styles.adventureTitle}>Mi aventura lectora</Text>
         </View>
 
-        <View style={styles.flightLogSection}>
-          <View style={styles.flightLogContent}>
-            <Image
-              source={require("../../assets/imgBitacora.png")}
-              style={styles.spaceshipIcon}
-            />
-          </View>
-          <Text style={styles.flightLogTitle}>Mi bitácora de vuelo</Text>
-          <Text style={styles.flightLogSubtitle}>
-            ¡Muchos éxitos, tú puedes!
-          </Text>
-        </View>
+        <BitacoraDeVuelo />
       </ScrollView>
     </SafeAreaView>
   );
@@ -133,13 +110,13 @@ const styles = StyleSheet.create({
   },
   userName: {
     color: "white",
-    fontSize: 24, // Tamaño más pequeño
+    fontSize: 24,
     fontWeight: "bold",
-    fontStyle: "italic", // Texto en cursiva
+    fontStyle: "italic",
   },
   adventure: {
     color: "white",
-    fontSize: 16, // Texto más pequeño para la segunda parte
+    fontSize: 16,
     fontStyle: "italic",
   },
   planet: {
@@ -150,35 +127,11 @@ const styles = StyleSheet.create({
   adventureSection: {
     backgroundColor: "#7E57C2",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 15,
     marginBottom: 20,
   },
   adventureTitle: {
     color: "white",
     fontSize: 18,
-  },
-  flightLogSection: {
-    backgroundColor: "#7E57C2",
-    padding: 15,
-    borderRadius: 10,
-  },
-  flightLogContent: {
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  spaceshipIcon: {
-    width: 100,
-    height: 60,
-  },
-  flightLogTitle: {
-    color: "yellow",
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  flightLogSubtitle: {
-    color: "white",
-    fontSize: 16,
   },
 });
