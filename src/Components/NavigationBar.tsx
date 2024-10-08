@@ -102,7 +102,7 @@ const NavigationBar = () => {
                 styles.menuItem,
                 { backgroundColor: getButtonBackgroundColor("Niveles") },
               ]}
-              onPress={() => navigateTo("")}
+              onPress={() => navigateTo("BitacoraVuelo")}
             >
               <Text style={styles.menuItemText}>Mi progreso</Text>
             </TouchableOpacity>

@@ -91,7 +91,6 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
     }
   };
 
-  // Usamos useFocusEffect para recargar las lecciones cuando se enfoca la pantalla
   useFocusEffect(
     useCallback(() => {
       if (userNivelEducativo && userNivelLiterario) {

@@ -1,10 +1,20 @@
-import React, { useState } from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import React, { useState, useCallback } from "react";
+import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
+import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import { RootStackParamList } from "../../navigation/StackNavigator";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
+type BitacoraNavigationProp = NativeStackNavigationProp<
+  RootStackParamList,
+  keyof RootStackParamList
+>;
 
 const BitacoraDeVuelo: React.FC = () => {
+  const navigation = useNavigation<BitacoraNavigationProp>();
+  const route =
+    useRoute<RouteProp<RootStackParamList, keyof RootStackParamList>>();
   const [progressLiteral, setProgressLiteral] = useState(0);
   const [progressInferencial, setProgressInferencial] = useState(0);
   const [progressCritico, setProgressCritico] = useState(0);
@@ -83,57 +93,65 @@ const BitacoraDeVuelo: React.FC = () => {
     }, [])
   );
 
-  return (
-    <View style={styles.flightLogWrapper}>
-      <View style={styles.flightLogSection}>
-        <View style={styles.flightLogContent}>
-          <Image
-            source={require("../../assets/imgBitacora.png")}
-            style={styles.spaceshipIcon}
-          />
-        </View>
-        <Text style={styles.flightLogTitle}>Mi bitácora de vuelo</Text>
-        <Text style={styles.flightLogSubtitle}>¡Muchos éxitos, tú puedes!</Text>
+  const navigateTo = (screen: keyof RootStackParamList) => {
+    navigation.navigate(screen);
+  };
 
-        <View style={styles.progressBarSection}>
-          {[
-            {
-              label: "Nivel Literal",
-              progress: progressLiteral,
-              color: "#FFB347",
-            },
-            {
-              label: "Nivel Inferencial",
-              progress: progressInferencial,
-              color: "#77DD77",
-            },
-            {
-              label: "Nivel Crítico",
-              progress: progressCritico,
-              color: "#FF6961",
-            },
-          ].map((level, index) => (
-            <View key={index} style={styles.progressItem}>
-              <Text style={styles.progressLabel}>{level.label}</Text>
-              <View style={styles.progressBarContainer}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    {
-                      width: `${level.progress}%`,
-                      backgroundColor: level.color,
-                    },
-                  ]}
-                />
+  return (
+    <TouchableOpacity onPress={() => navigateTo("BitacoraVuelo")}>
+      <View style={styles.flightLogWrapper}>
+        <View style={styles.flightLogSection}>
+          <View style={styles.flightLogContent}>
+            <Image
+              source={require("../../assets/imgBitacora.png")}
+              style={styles.spaceshipIcon}
+            />
+          </View>
+          <Text style={styles.flightLogTitle}>Mi bitácora de vuelo</Text>
+          <Text style={styles.flightLogSubtitle}>
+            ¡Muchos éxitos, tú puedes!
+          </Text>
+
+          <View style={styles.progressBarSection}>
+            {[
+              {
+                label: "Nivel Literal",
+                progress: progressLiteral,
+                color: "#FFB347",
+              },
+              {
+                label: "Nivel Inferencial",
+                progress: progressInferencial,
+                color: "#77DD77",
+              },
+              {
+                label: "Nivel Crítico",
+                progress: progressCritico,
+                color: "#FF6961",
+              },
+            ].map((level, index) => (
+              <View key={index} style={styles.progressItem}>
+                <Text style={styles.progressLabel}>{level.label}</Text>
+                <View style={styles.progressBarContainer}>
+                  <View
+                    style={[
+                      styles.progressBar,
+                      {
+                        width: `${level.progress}%`,
+                        backgroundColor: level.color,
+                      },
+                    ]}
+                  />
+                </View>
+                <Text style={styles.progressText}>
+                  {Math.round(level.progress)}%
+                </Text>
               </View>
-              <Text style={styles.progressText}>
-                {Math.round(level.progress)}%
-              </Text>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -6,7 +6,8 @@ import PlanetaArrupeHomeScreen from "../src/screens/PlanetaArrupeHomeScreen";
 import NivelesLecturasScreen from "../src/screens/NivelesLecturasScreen";
 import NavigationBar from "../src/Components/NavigationBar";
 import LeccionesScreen from "../src/screens/LeccionesScreen";
-import DetalleLeccionScreen from "../src/screens/DetalleLeccionScreen"; // Ahora usamos DetalleLeccionScreen
+import DetalleLeccionScreen from "../src/screens/DetalleLeccionScreen";
+import CompletedLessonsScreen from "../src/screens/CompletedLessonsScreen";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   Navbar: undefined;
   Lecciones: { level: string };
   DetalleLecciones: { id: string };
+  BitacoraVuelo: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -50,7 +52,12 @@ const StackNavigator = () => {
         />
         <Stack.Screen
           name="DetalleLecciones"
-          component={DetalleLeccionScreen} // Cambiado para que use DetalleLeccionScreen
+          component={DetalleLeccionScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="BitacoraVuelo"
+          component={CompletedLessonsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

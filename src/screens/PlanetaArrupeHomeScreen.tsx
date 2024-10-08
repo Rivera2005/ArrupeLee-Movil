@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, } from "react-native";
+import { View, Text, Image, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
@@ -133,5 +133,6 @@ const styles = StyleSheet.create({
   adventureTitle: {
     color: "white",
     fontSize: 18,
+    textAlign: "center"
   },
 });
