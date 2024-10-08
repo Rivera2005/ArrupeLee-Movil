@@ -4,7 +4,7 @@ import LessonItem from "./LessonItem";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react"; // Importa useCallback
+import { useCallback } from "react";
 
 type RootStackParamList = {
   Login: undefined;
@@ -28,7 +28,7 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
       }
 
       const response = await fetch(
-        `http://192.242.6.101:8085/arrupe/sv/arrupe/lecciones`
+        `http://192.242.6.131:8085/arrupe/sv/arrupe/lecciones`
       );
 
       if (!response.ok) {
@@ -61,7 +61,7 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
           let progress = 0;
           try {
             const progressResponse = await fetch(
-              `http://192.242.6.101:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+              `http://192.242.6.131:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
             );
 
             if (progressResponse.ok) {

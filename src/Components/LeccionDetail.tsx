@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, SafeAreaView} from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, SafeAreaView, } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const LeccionDetail = ({ lessonId }) => {
@@ -17,7 +18,7 @@ const LeccionDetail = ({ lessonId }) => {
     const fetchLessonDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.242.6.101:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
+          `http://192.242.6.131:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -32,6 +33,31 @@ const LeccionDetail = ({ lessonId }) => {
         const storedUserId = await AsyncStorage.getItem("userId");
         setUserId(storedUserId);
 
+        if (storedUserId) {
+          const progresoResponse = await fetch(
+            `http://192.242.6.131:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
+          );
+          if (progresoResponse.ok) {
+            const progresoData = await progresoResponse.json();
+            setMaxPorcentajeCompletado(progresoData.porcentajeCompletado);
+
+            // Calcula el índice basado en el porcentaje guardado
+            const totalImages = imagesArray.length;
+            const savedIndex = Math.floor(
+              (progresoData.porcentajeCompletado / 100) * totalImages
+            );
+
+            setTimeout(() => {
+              scrollViewRef.current?.scrollTo({
+                x: savedIndex * screenWidth,
+                animated: false,
+              });
+              setCurrentImageIndex(savedIndex);
+              setLastReportedIndex(savedIndex);
+            }, 100);
+          }
+        }
+
         await registrarProgreso(0);
       } catch (error) {
         console.error("Error en fetchLessonDetail:", error.message);
@@ -42,18 +68,13 @@ const LeccionDetail = ({ lessonId }) => {
     fetchLessonDetail();
   }, [lessonId]);
 
-  useEffect(() => {
-    if (lessonDetail) {
-      handleScroll({ nativeEvent: { contentOffset: { x: 0 } } });
-    }
-  }, [lessonDetail]);
-
   const registrarProgreso = async (index) => {
     if (images.length === 0) return;
 
     const totalImages = images.length;
     let porcentajeCompletado = ((index + 1) / totalImages) * 100;
 
+    // No actualizar si el nuevo porcentaje es menor que el máximo registrado
     if (porcentajeCompletado > maxPorcentajeCompletado) {
       setMaxPorcentajeCompletado(porcentajeCompletado);
 
@@ -69,7 +90,7 @@ const LeccionDetail = ({ lessonId }) => {
         }
 
         const response = await fetch(
-          "http://192.242.6.101:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+          "http://192.242.6.131:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
           {
             method: "POST",
             headers: {
@@ -83,8 +104,6 @@ const LeccionDetail = ({ lessonId }) => {
             }),
           }
         );
-
-        const result = await response.json();
 
         if (!response.ok) {
           console.error(`Error ${response.status}: ${response.statusText}`);

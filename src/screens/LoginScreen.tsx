@@ -41,7 +41,7 @@ export default function LoginScreen({ navigation }: Props) {
   const handleLogin = async () => {
     try {
       const response = await fetch(
-        "http://192.242.6.101:8085/arrupe/sv/arrupe/usuarios",
+        "http://192.242.6.131:8085/arrupe/sv/arrupe/usuarios",
         {
           method: "GET",
           headers: {

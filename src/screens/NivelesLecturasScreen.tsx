@@ -31,7 +31,6 @@ type Props = {
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const CAROUSEL_ITEM_WIDTH = SCREEN_WIDTH * 0.9;
 
-
 const carouselItems = [
   {
     image: require("../../assets/baner-literal.png"),
@@ -75,7 +74,7 @@ export default function NivelesLecturasScreen({ navigation }: Props) {
       <Header />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.sectionTitle}>Niveles de Lectura</Text>
-        
+
         <View style={styles.videoContainer}>
           <Video
             source={require("../../assets/video-intro.mp4")}
@@ -87,7 +86,7 @@ export default function NivelesLecturasScreen({ navigation }: Props) {
         </View>
 
         <Text style={styles.sectionTitle}>Explora los Niveles</Text>
-        
+
         <ScrollView
           ref={scrollViewRef}
           horizontal
@@ -124,7 +123,7 @@ export default function NivelesLecturasScreen({ navigation }: Props) {
 
         <TouchableOpacity
           style={styles.loginButton}
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate("Login")}
         >
           <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
         </TouchableOpacity>
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingVertical: 20,
-    alignItems: 'center',
+    alignItems: "center",
   },
   videoContainer: {
     width: SCREEN_WIDTH * 0.9,
@@ -155,15 +154,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: '600',
-    color: '#FFF',
+    fontWeight: "600",
+    color: "#FFF",
     marginBottom: 15,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     marginLeft: 20,
   },
   carouselContainer: {
     justifyContent: "center",
-    paddingLeft: (SCREEN_WIDTH * 0.01), // To center the carousel
+    paddingLeft: SCREEN_WIDTH * 0.01,
   },
   carouselItem: {
     width: CAROUSEL_ITEM_WIDTH + 4,
@@ -171,7 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     overflow: "hidden",
     justifyContent: "flex-end",
-    marginHorizontal: 15, // To prevent overlap
+    marginHorizontal: 15,
   },
   carouselImage: {
     ...StyleSheet.absoluteFillObject,
@@ -180,11 +179,11 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
   },
   carouselItemTitle: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     padding: 15,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   pagination: {
     flexDirection: "row",
