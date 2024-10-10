@@ -43,18 +43,18 @@ const BitacoraDeVuelo: React.FC = () => {
           const fetchedLessons = await response.json();
 
           const leccionesLiteral = fetchedLessons.filter(
-            (lesson) => lesson[3] === "LITERAL"
+            (lesson: any[]) => lesson[3] === "LITERAL"
           );
           const leccionesInferencial = fetchedLessons.filter(
-            (lesson) => lesson[3] === "INFERENCIAL"
+            (lesson: any[]) => lesson[3] === "INFERENCIAL"
           );
           const leccionesCritico = fetchedLessons.filter(
-            (lesson) => lesson[3] === "CRITICO"
+            (lesson: any[]) => lesson[3] === "CRITICO"
           );
 
-          const calculateProgress = async (lessons) => {
+          const calculateProgress = async (lessons: any[]) => {
             const progressArray = await Promise.all(
-              lessons.map(async (lesson) => {
+              lessons.map(async (lesson: any[]) => {
                 const progressResponse = await fetch(
                   `http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
                 );
@@ -82,10 +82,14 @@ const BitacoraDeVuelo: React.FC = () => {
           setProgressInferencial(inferencialProgress);
           setProgressCritico(criticoProgress);
         } catch (error) {
-          console.error(
-            "Error al obtener los datos de progreso:",
-            error.message
-          );
+          if (error instanceof Error) {
+            console.error(
+              "Error al obtener los datos de progreso:",
+              error.message
+            );
+          } else {
+            console.error("Error desconocido:", error);
+          }
         }
       };
 
@@ -93,12 +97,8 @@ const BitacoraDeVuelo: React.FC = () => {
     }, [])
   );
 
-  const navigateTo = (screen: keyof RootStackParamList) => {
-    navigation.navigate(screen);
-  };
-
   return (
-    <TouchableOpacity onPress={() => navigateTo("BitacoraVuelo")}>
+    <TouchableOpacity onPress={() => navigation.navigate("BitacoraVuelo")}>
       <View style={styles.flightLogWrapper}>
         <View style={styles.flightLogSection}>
           <View style={styles.flightLogContent}>
