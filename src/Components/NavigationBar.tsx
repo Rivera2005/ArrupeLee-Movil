@@ -50,11 +50,6 @@ const NavigationBar = () => {
     setMenuVisible(!isMenuVisible);
   };
 
-  const navigateTo = (screen: keyof RootStackParamList) => {
-    navigation.navigate(screen);
-    setMenuVisible(false);
-  };
-
   const getButtonBackgroundColor = (screen: keyof RootStackParamList) => {
     return route.name === screen ? "#FFC107" : "#673AB7";
   };
@@ -64,7 +59,7 @@ const NavigationBar = () => {
       <View style={styles.navbar}>
         <TouchableOpacity
           style={styles.iconButton}
-          onPress={() => navigateTo("Home")}
+          onPress={() => navigation.navigate("Home")}
         >
           <Ionicons name="home-outline" size={24} color="white" />
         </TouchableOpacity>
@@ -93,7 +88,7 @@ const NavigationBar = () => {
                 styles.menuItem,
                 { backgroundColor: getButtonBackgroundColor("Home") },
               ]}
-              onPress={() => navigateTo("Home")}
+              onPress={() => navigation.navigate("Home")}
             >
               <Text style={styles.menuItemText}>Mi aventura lectora</Text>
             </TouchableOpacity>
@@ -102,7 +97,7 @@ const NavigationBar = () => {
                 styles.menuItem,
                 { backgroundColor: getButtonBackgroundColor("Niveles") },
               ]}
-              onPress={() => navigateTo("BitacoraVuelo")}
+              onPress={() => navigation.navigate("BitacoraVuelo")}
             >
               <Text style={styles.menuItemText}>Mi progreso</Text>
             </TouchableOpacity>
@@ -117,7 +112,7 @@ const NavigationBar = () => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.footerItem}
-                onPress={() => navigateTo("Niveles")}
+                onPress={() => navigation.navigate("Niveles")}
               >
                 <Ionicons name="log-out-outline" size={24} color="#FF0000" />
                 <Text style={styles.footerItemTextLogout}>Salir</Text>
