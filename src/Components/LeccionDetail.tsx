@@ -1,18 +1,35 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, SafeAreaView, } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
-const LeccionDetail = ({ lessonId }) => {
-  const [lessonDetail, setLessonDetail] = useState(null);
+type LeccionDetailProps = {
+  lessonId: number; // Tipamos explícitamente lessonId
+};
+
+const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
+  const [lessonDetail, setLessonDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const scrollViewRef = useRef(null);
-  const [userId, setUserId] = useState(null);
-  const [lastReportedIndex, setLastReportedIndex] = useState(null);
-  const [maxPorcentajeCompletado, setMaxPorcentajeCompletado] = useState(0);
-  const [images, setImages] = useState([]);
+  const scrollViewRef = useRef<ScrollView>(null); // Especificamos el tipo RefObject<ScrollView>
+  const [userId, setUserId] = useState<string | null>(null); // Añadimos el tipo string o null
+  const [lastReportedIndex, setLastReportedIndex] = useState<number | null>(
+    null
+  ); // Añadimos el tipo número o null
+  const [maxPorcentajeCompletado, setMaxPorcentajeCompletado] =
+    useState<number>(0);
+  const [images, setImages] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchLessonDetail = async () => {
@@ -59,7 +76,8 @@ const LeccionDetail = ({ lessonId }) => {
         }
 
         await registrarProgreso(0);
-      } catch (error) {
+      } catch (error: any) {
+        // Tipamos explícitamente error como 'any'
         console.error("Error en fetchLessonDetail:", error.message);
       } finally {
         setLoading(false);
@@ -68,7 +86,8 @@ const LeccionDetail = ({ lessonId }) => {
     fetchLessonDetail();
   }, [lessonId]);
 
-  const registrarProgreso = async (index) => {
+  const registrarProgreso = async (index: number) => {
+    // Tipamos el parámetro 'index'
     if (images.length === 0) return;
 
     const totalImages = images.length;
@@ -110,13 +129,15 @@ const LeccionDetail = ({ lessonId }) => {
         } else {
           console.log(`Progreso del usuario ${userId} registrado con éxito.`);
         }
-      } catch (error) {
-        console.error("Error al actualizar el progreso:", error);
+      } catch (error: any) {
+        // Tipamos explícitamente error como 'any'
+        console.error("Error al actualizar el progreso:", error.message);
       }
     }
   };
 
-  const handleScroll = async (event) => {
+  const handleScroll = async (event: any) => {
+    // Tipamos 'event'
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / screenWidth);
 
