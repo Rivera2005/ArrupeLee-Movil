@@ -8,6 +8,7 @@ import NavigationBar from "../src/Components/NavigationBar";
 import LeccionesScreen from "../src/screens/LeccionesScreen";
 import DetalleLeccionScreen from "../src/screens/DetalleLeccionScreen";
 import CompletedLessonsScreen from "../src/screens/CompletedLessonsScreen";
+import PreguntasScreen from "../src/screens/PreguntasScreen";
 
 export type RootStackParamList = {
   Login: undefined;
@@ -17,6 +18,8 @@ export type RootStackParamList = {
   Lecciones: { level: string };
   DetalleLecciones: { id: string };
   BitacoraVuelo: undefined;
+  Preguntas: { leccionId: string };
+
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -58,6 +61,11 @@ const StackNavigator = () => {
         <Stack.Screen
           name="BitacoraVuelo"
           component={CompletedLessonsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Preguntas"
+          component={PreguntasScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

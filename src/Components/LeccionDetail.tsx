@@ -18,7 +18,7 @@ const LeccionDetail = ({ lessonId }) => {
     const fetchLessonDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.242.6.131:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
+          `http://192.242.6.128:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -35,7 +35,7 @@ const LeccionDetail = ({ lessonId }) => {
 
         if (storedUserId) {
           const progresoResponse = await fetch(
-            `http://192.242.6.131:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
+            `http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
           );
           if (progresoResponse.ok) {
             const progresoData = await progresoResponse.json();
@@ -90,7 +90,7 @@ const LeccionDetail = ({ lessonId }) => {
         }
 
         const response = await fetch(
-          "http://192.242.6.131:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+          "http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
           {
             method: "POST",
             headers: {
@@ -146,7 +146,6 @@ const LeccionDetail = ({ lessonId }) => {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>{lessonDetail[1]}</Text>
-          <Text style={styles.level}>Nivel: {lessonDetail[3]}</Text>
           <Text style={styles.educationLevel}>
             Nivel Educativo: {lessonDetail[4]}
           </Text>
@@ -239,13 +238,15 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   educationLevel: {
+    paddingTop: 5,
     fontSize: 16,
     marginBottom: 0,
     color: "#fff",
   },
   carouselContainer: {
     height: screenHeight * 0.4,
-    marginBottom: 20,
+    marginBottom: 5,
+    marginTop: -55,
   },
   imageContainer: {
     width: screenWidth,
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
-    bottom: 10,
+    bottom: 30,
     left: 0,
     right: 0,
   },

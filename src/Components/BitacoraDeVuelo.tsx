@@ -30,7 +30,7 @@ const BitacoraDeVuelo: React.FC = () => {
           }
 
           const response = await fetch(
-            `http:///192.242.6.131:8085/arrupe/sv/arrupe/lecciones`
+            `http://192.242.6.128:8085/arrupe/sv/arrupe/lecciones`
           );
 
           if (!response.ok) {
@@ -56,7 +56,7 @@ const BitacoraDeVuelo: React.FC = () => {
             const progressArray = await Promise.all(
               lessons.map(async (lesson) => {
                 const progressResponse = await fetch(
-                  `http://192.242.6.131:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+                  `http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
                 );
                 if (progressResponse.ok) {
                   const progressData = await progressResponse.json();
