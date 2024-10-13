@@ -11,7 +11,7 @@ interface ResultadoComponenteProps {
   puntuacion: number;
   puntuacionMaxima: number;
   onRegresarListaIntentos: () => void;
-  mensajeAdicional?: string; // Agregar este prop
+  mensajeAdicional?: string;
 }
 
 const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
@@ -22,7 +22,7 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
   puntuacion,
   puntuacionMaxima,
   onRegresarListaIntentos,
-  mensajeAdicional, // Recibir el nuevo prop
+  mensajeAdicional,
 }) => {
   return (
     <View style={styles.container}>
@@ -42,7 +42,7 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
         <Text style={styles.puntuacionText}>
           Su puntuación total es: {puntuacion} / {puntuacionMaxima}
         </Text>
-        {mensajeAdicional && ( // Mostrar mensaje adicional si existe
+        {mensajeAdicional && (
           <Text style={styles.mensajeAdicional}>{mensajeAdicional}</Text>
         )}
       </View>

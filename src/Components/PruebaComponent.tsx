@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
@@ -8,18 +14,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type IntentoPrueba = {
   id: number;
   fecha: string;
+  fechaFormateada: string;
   puntuacion: string;
 };
 
 type PruebaComponentProps = {
   intentos: IntentoPrueba[];
   onMostrarDetalles: (id: number) => void;
-
+  onObtenerPruebaId: (id: number) => void;
+  formatearFecha: (fecha: string) => string;
 };
 
 const PruebaComponent: React.FC<PruebaComponentProps> = ({
   intentos,
   onMostrarDetalles,
+  onObtenerPruebaId,
+  formatearFecha,
 }) => {
   const [pruebaId, setPruebaId] = useState<number | null>(null);
   const [lessonId, setLessonId] = useState<number | null>(null);
@@ -54,8 +64,14 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
             if (!pruebaResponse.ok) {
               throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
             }
+
             const pruebaData = await pruebaResponse.json();
-            setPruebaId(pruebaData[0][3]);
+            const obtainedPruebaId = pruebaData[0][3];
+            setPruebaId(obtainedPruebaId);
+
+            if (onObtenerPruebaId && obtainedPruebaId) {
+              onObtenerPruebaId(obtainedPruebaId);
+            }
           }
         } else {
           console.error("No se encontró el lessonId en AsyncStorage.");
@@ -70,7 +86,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
     };
 
     fetchLessonPruebaId();
-  }, []);
+  }, [onObtenerPruebaId]); // Asegurarnos de que se ejecute si cambia onObtenerPruebaId
 
   const iniciarPrueba = () => {
     if (pruebaId) {
@@ -83,7 +99,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   const renderItem = ({ item }: { item: IntentoPrueba }) => (
     <View style={styles.row}>
       <Text style={styles.cell}>{item.id}</Text>
-      <Text style={styles.cell}>{item.fecha}</Text>
+      <Text style={styles.cell}>{item.fechaFormateada}</Text>
       <Text style={styles.cell}>{item.puntuacion}</Text>
       <TouchableOpacity
         style={styles.button}

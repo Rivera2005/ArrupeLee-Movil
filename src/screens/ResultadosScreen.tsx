@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ResultadoComponente from "../Components/ResultadoComponente";
 import Header from "../Components/Header";
@@ -13,15 +8,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type RootStackParamList = {
   Home: undefined;
-  Resultados: { pruebaId: number }; // Recibir pruebaId
-  DetalleLecciones: { lessonId: string }; // Asegúrate de que sea el mismo nombre
+  Resultados: { pruebaId: number };
+  DetalleLecciones: { lessonId: string };
 };
 
 type ResultadosScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Resultados">;
   route: {
     params: {
-      pruebaId: number; // Asegúrate de que esto esté correctamente definido
+      pruebaId: number;
     };
   };
 };
@@ -34,11 +29,10 @@ export default function ResultadosScreen({
   const [titulo, setTitulo] = useState("");
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState("");
-  const [userNombre, setUserNombre] = useState(""); // Estado para el nombre
-  const [userApellido, setUserApellido] = useState(""); // Estado para el apellido
-  const [lessonId, setLessonId] = useState<string | null>(null); // Estado para el lessonId
+  const [userNombre, setUserNombre] = useState("");
+  const [userApellido, setUserApellido] = useState("");
+  const [lessonId, setLessonId] = useState<string | null>(null);
 
-  // Obtener pruebaId de los parámetros
   const pruebaId = route.params.pruebaId;
 
   useEffect(() => {
@@ -46,14 +40,14 @@ export default function ResultadosScreen({
       try {
         // Obtener el ID del usuario de AsyncStorage
         const storedUserId = await AsyncStorage.getItem("userId");
-        const storedUserNombre = await AsyncStorage.getItem("userNombre"); // Obtener el nombre
-        const storedUserApellido = await AsyncStorage.getItem("userApellido"); // Obtener el apellido
-        const storedLessonId = await AsyncStorage.getItem("lessonId"); // Obtener el lessonId
+        const storedUserNombre = await AsyncStorage.getItem("userNombre");
+        const storedUserApellido = await AsyncStorage.getItem("userApellido");
+        const storedLessonId = await AsyncStorage.getItem("lessonId");
 
         console.log("Stored User ID:", storedUserId);
         console.log("Stored User Nombre:", storedUserNombre);
         console.log("Stored User Apellido:", storedUserApellido);
-        console.log("Stored Lesson ID:", storedLessonId); // Log para el lessonId
+        console.log("Stored Lesson ID:", storedLessonId);
 
         if (storedUserId) {
           setUserId(storedUserId);
@@ -65,10 +59,9 @@ export default function ResultadosScreen({
           setUserApellido(storedUserApellido);
         }
         if (storedLessonId) {
-          setLessonId(storedLessonId); // Guardar el lessonId en el estado
+          setLessonId(storedLessonId);
         }
 
-        // Obtener los resultados de la prueba filtrando por userId y pruebaId
         const responseResultados = await fetch(
           "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
@@ -78,8 +71,8 @@ export default function ResultadosScreen({
         console.log("Resultados Data:", resultadosData);
 
         const filteredResultados = resultadosData.filter((resultado: any) => {
-          const resultadoUserId = resultado[2]; // userId
-          const resultadoPruebaId = resultado[1]; // pruebaId
+          const resultadoUserId = resultado[2];
+          const resultadoPruebaId = resultado[1];
 
           return (
             resultadoUserId.toString() === storedUserId &&
@@ -87,18 +80,16 @@ export default function ResultadosScreen({
           );
         });
 
-        // Si hay resultados filtrados, obtener el más reciente
         if (filteredResultados.length > 0) {
           const latestResult = filteredResultados.reduce((latest, current) => {
             return new Date(current[5]) > new Date(latest[5])
               ? current
-              : latest; // Comparar por fecha
+              : latest;
           });
 
           setResultados([latestResult]);
 
-          // Obtener información de la prueba
-          const pruebaId = latestResult[1]; // Obtener el pruebaId
+          const pruebaId = latestResult[1];
           const responsePrueba = await fetch(
             `http://192.168.0.15:8085/arrupe/sv/arrupe/prueba`
           );
@@ -106,7 +97,7 @@ export default function ResultadosScreen({
 
           const pruebaInfo = pruebaData.find((p: any) => p[0] === pruebaId);
           if (pruebaInfo) {
-            setTitulo(pruebaInfo[1]); // Título de la prueba
+            setTitulo(pruebaInfo[1]);
           }
         }
       } catch (error) {
@@ -119,13 +110,9 @@ export default function ResultadosScreen({
     fetchResultados();
   }, [navigation, pruebaId]);
 
-  const handleRealizarOtroIntento = () => {
-    // Implementa la lógica para realizar otro intento
-  };
-
   const handleRegresarListaIntentos = () => {
     if (lessonId) {
-      navigation.navigate("DetalleLecciones", { lessonId: lessonId }); // Navegar a DetalleLecciones con el lessonId
+      navigation.navigate("DetalleLecciones", { lessonId: lessonId });
     } else {
       console.warn("No se encontró el lessonId para navegar.");
     }
@@ -144,11 +131,11 @@ export default function ResultadosScreen({
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           resultados.map((resultado, index) => {
-            const puntuacionObtenida = resultado[4]; // Puntaje obtenido
+            const puntuacionObtenida = resultado[4];
             const mensajeAdicional =
               puntuacionObtenida < 6
                 ? "No ha alcanzado el puntaje mínimo."
-                : undefined; // No mostrar mensaje adicional si la puntuación es suficiente
+                : undefined;
 
             return (
               <ResultadoComponente
@@ -156,12 +143,12 @@ export default function ResultadosScreen({
                 titulo={`${titulo} : Resultado`}
                 nombreUsuario={`${userNombre} ${userApellido}`}
                 idUsuario={resultado[3]} // ID de usuario desde el resultado
-                fechaInicio={new Date(resultado[5]).toLocaleString()} // Formatea la fecha
-                respuestasGuardadas={resultado[4]} // Puntaje
-                puntuacion={resultado[4]} // Puntaje obtenido
-                puntuacionMaxima={100} // Cambia esto si tienes datos sobre la puntuación máxima
+                fechaInicio={new Date(resultado[5]).toLocaleString()}
+                respuestasGuardadas={resultado[4]}
+                puntuacion={resultado[4]}
+                puntuacionMaxima={100}
                 onRegresarListaIntentos={handleRegresarListaIntentos}
-                mensajeAdicional={mensajeAdicional} // Pasar el mensaje
+                mensajeAdicional={mensajeAdicional}
               />
             );
           })
@@ -180,4 +167,4 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-});
+})
