@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FlatList, StyleSheet, ActivityIndicator, Text } from "react-native";
 import PreguntasItemComponente from "./PreguntasItemComponente";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Pregunta = {
   id: string;
@@ -10,20 +11,25 @@ type Pregunta = {
 
 type PreguntasListComponenteProps = {
   pruebaId: string;
-  renderFooter: () => React.ReactElement;
+  renderFooter: (datosUsuariosRespuestas: any) => React.ReactElement;
+  onTerminarEjercicio: (datosUsuariosRespuestas: any) => void;
 };
 
 const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
   pruebaId,
   renderFooter,
+  onTerminarEjercicio,
 }) => {
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
+  const [selecciones, setSelecciones] = useState<{ [key: string]: string }>({});
+  const [usuarioId, setUsuarioId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPreguntas = async () => {
       try {
+        // Obtener preguntas
         const response = await fetch(
           "http://192.168.0.15:8085/arrupe/sv/arrupe/preguntas"
         );
@@ -40,6 +46,11 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
         }));
 
         setPreguntas(preguntasMapeadas);
+
+        const storedUsuarioId = await AsyncStorage.getItem("userId");
+        if (storedUsuarioId) {
+          setUsuarioId(storedUsuarioId);
+        }
       } catch (error) {
         setError("Error al cargar las preguntas.");
         console.error(error);
@@ -50,6 +61,21 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
 
     fetchPreguntas();
   }, [pruebaId]);
+
+  const handleGuardarOpcion = (
+    preguntaId: string,
+    opcionSeleccionada: string
+  ) => {
+    setSelecciones((prev) => ({ ...prev, [preguntaId]: opcionSeleccionada }));
+  };
+
+  const datosUsuariosRespuestas = preguntas.map((pregunta) => ({
+    prueba: parseInt(pruebaId),
+    preguntas: parseInt(pregunta.id),
+    respuestas: selecciones[pregunta.id] ? parseInt(selecciones[pregunta.id]) : null,
+    Usuario: usuarioId ? parseInt(usuarioId) : null,
+    tiempoRespuesta: 567.0, //Buscar una logica mejor
+  }));
 
   if (loading) {
     return <ActivityIndicator size="large" color="#FFD700" />;
@@ -66,14 +92,12 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
         <PreguntasItemComponente
           pregunta={item.pregunta}
           preguntaId={item.id}
-          onSelectOpcion={(opcion) =>
-            console.log(`Pregunta ${item.id}, opción seleccionada: ${opcion}`)
-          }
+          onSelectOpcion={(opcion) => handleGuardarOpcion(item.id, opcion)}
         />
       )}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.listContent}
-      ListFooterComponent={renderFooter}
+      ListFooterComponent={renderFooter(datosUsuariosRespuestas)}
     />
   );
 };

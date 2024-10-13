@@ -6,18 +6,38 @@ type OpcionComponenteProps = {
   onSelectOpcion: (opcion: string) => void;
 };
 
-const OpcionesComponente: React.FC<OpcionComponenteProps> = ({ preguntaId, onSelectOpcion }) => {
-  const [opciones, setOpciones] = useState<string[]>([]);
+type Opcion = {
+  id: string;
+  texto: string;
+};
+
+const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
+  preguntaId,
+  onSelectOpcion,
+}) => {
+  const [opciones, setOpciones] = useState<Opcion[]>([]);
+  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(
+    null
+  );
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchOpciones = async () => {
       try {
-        const response = await fetch(`http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`);
+        const response = await fetch(
+          `http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`
+        );
         const data = await response.json();
-        const respuestasFiltradas = data.filter((respuesta: any[]) => respuesta[2].toString() === preguntaId);
-        const opcionesMapeadas = respuestasFiltradas.map((respuesta: any[]) => respuesta[1]);
+        const respuestasFiltradas = data.filter(
+          (respuesta: any[]) => respuesta[2].toString() === preguntaId
+        );
+        const opcionesMapeadas = respuestasFiltradas.map(
+          (respuesta: any[]) => ({
+            id: respuesta[0].toString(),
+            texto: respuesta[1],
+          })
+        );
         setOpciones(opcionesMapeadas);
       } catch (error) {
         setError("Error al cargar las opciones.");
@@ -30,6 +50,11 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({ preguntaId, onSel
     fetchOpciones();
   }, [preguntaId]);
 
+  const handleSelectOpcion = (opcion: Opcion) => {
+    setOpcionSeleccionada(opcion.texto);
+    onSelectOpcion(opcion.id);
+  };
+
   if (loading) {
     return <ActivityIndicator size="small" color="#FFD700" />;
   }
@@ -40,10 +65,31 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({ preguntaId, onSel
 
   return (
     <View style={styles.container}>
-      {opciones.map((opcion, index) => (
-        <TouchableOpacity key={index} style={styles.opcionButton} onPress={() => onSelectOpcion(opcion)}>
-          <View style={styles.bullet} />
-          <Text style={styles.opcionText}>{opcion}</Text>
+      {opciones.map((opcion) => (
+        <TouchableOpacity
+          key={opcion.id}
+          style={[
+            styles.opcionButton,
+            opcion.texto === opcionSeleccionada &&
+              styles.opcionButtonSeleccionada,
+          ]}
+          onPress={() => handleSelectOpcion(opcion)}
+        >
+          <View
+            style={[
+              styles.bullet,
+              opcion.texto === opcionSeleccionada && styles.bulletSeleccionada,
+            ]}
+          />
+          <Text
+            style={[
+              styles.opcionText,
+              opcion.texto === opcionSeleccionada &&
+                styles.opcionTextSeleccionada,
+            ]}
+          >
+            {opcion.texto}
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -52,31 +98,41 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({ preguntaId, onSel
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    width: "100%",
   },
   opcionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: 10,
     paddingHorizontal: 5,
+    backgroundColor: "transparent",
+  },
+  opcionButtonSeleccionada: {
+    backgroundColor: "#FFD70020",
   },
   bullet: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: '#FFD700',
+    backgroundColor: "#FFD700",
     marginRight: 10,
+  },
+  bulletSeleccionada: {
+    backgroundColor: "#FFD700",
   },
   opcionText: {
     fontSize: 14,
     color: "#FFD700",
     flex: 1,
-    fontWeight: 'bold',
-    textAlign: 'left',
+    fontWeight: "bold",
+    textAlign: "left",
+  },
+  opcionTextSeleccionada: {
+    color: "#FFFFFF",
   },
   errorText: {
-    color: 'red',
-    textAlign: 'center',
+    color: "red",
+    textAlign: "center",
   },
 });
 

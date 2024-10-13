@@ -52,7 +52,7 @@ const LessonList: React.FC<LessonListProps> = ({
       }
 
       const textResponse = await response.text();
-      const fetchedLessons: any[] = JSON.parse(textResponse); // Puedes definir un tipo específico si lo conoces
+      const fetchedLessons: any[] = JSON.parse(textResponse);
 
       const filteredLessons: Lesson[] = fetchedLessons.filter((lesson: any) => {
         return (
@@ -97,7 +97,7 @@ const LessonList: React.FC<LessonListProps> = ({
           }
 
           return {
-            id: lesson[0], // Asegúrate de mapear correctamente según tu estructura
+            id: lesson[0],
             title: lesson[1],
             progress,
           } as Lesson;

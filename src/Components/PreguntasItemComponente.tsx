@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import OpcionesComponente from "./OpcionesComponente";
 
@@ -8,17 +8,36 @@ type PreguntaItemProps = {
   onSelectOpcion: (opcion: string) => void;
 };
 
-const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({ pregunta, preguntaId, onSelectOpcion }) => {
+const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
+  pregunta,
+  preguntaId,
+  onSelectOpcion,
+}) => {
+  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
+
+  const handleGuardarYContinuar = () => {
+    if (opcionSeleccionada) {
+      console.log(`Pregunta ${preguntaId}: Opción seleccionada: ${opcionSeleccionada}`);
+      onSelectOpcion(opcionSeleccionada);
+    } else {
+      console.warn(`No se seleccionó ninguna opción para la pregunta ${preguntaId}`);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.pregunta}>{pregunta}</Text>
-      <OpcionesComponente preguntaId={preguntaId} onSelectOpcion={onSelectOpcion} />
-      <TouchableOpacity style={styles.continuarButton}>
+      <OpcionesComponente
+        preguntaId={preguntaId}
+        onSelectOpcion={(opcion) => setOpcionSeleccionada(opcion)}
+      />
+      <TouchableOpacity style={styles.continuarButton} onPress={handleGuardarYContinuar}>
         <Text style={styles.continuarButtonText}>Guardar y continuar</Text>
       </TouchableOpacity>
     </View>
   );
 };
+
 
 const windowWidth = Dimensions.get('window').width;
 

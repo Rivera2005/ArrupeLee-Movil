@@ -10,6 +10,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 type RootStackParamList = {
   Login: undefined;
   Home: undefined;
+  Resultados: undefined;
   Preguntas: { leccionId: string; pruebaId: string };
 };
 
@@ -48,10 +49,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     const getPruebaId = async () => {
       if (route.params?.pruebaId) {
         setPruebaId(route.params.pruebaId);
-        console.log(
-          "Prueba ID recibido en PreguntasScreen: ",
-          route.params.pruebaId
-        );
       } else {
         console.warn("No se recibió pruebaId desde los parámetros.");
       }
@@ -67,22 +64,58 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     );
   }
 
-  const handleTerminarEjercicio = () => {
+  const handleTerminarEjercicio = async (datosUsuariosRespuestas: any) => {
     console.log("Ejercicio terminado");
-    // Implementa aquí la lógica para terminar el ejercicio
-    // navigation.navigate('Home');
+
+    try {
+      for (const respuesta of datosUsuariosRespuestas) {
+        console.log("Enviando respuesta:", JSON.stringify(respuesta));
+
+        const response = await fetch(
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(respuesta),
+          }
+        );
+
+        if (!response.ok) {
+          const errorResponse = await response.json();
+          console.error(
+            `Error al guardar la respuesta ${respuesta.preguntas}:`,
+            response.status,
+            errorResponse
+          );
+        } else {
+          const data = await response.json();
+          console.log(
+            `Respuesta ${respuesta.preguntas} guardada con éxito`,
+            data
+          );
+        }
+      }
+
+      console.log("Todas las respuestas han sido guardadas.");
+      navigation.navigate("Resultados");
+    } catch (error) {
+      console.error("Error al guardar las respuestas:", error);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Header />
-        <PreguntasListComponente 
+        <PreguntasListComponente
           pruebaId={pruebaId}
-          renderFooter={() => (
+          onTerminarEjercicio={handleTerminarEjercicio}
+          renderFooter={(datosUsuariosRespuestas: any) => (
             <TouchableOpacity
               style={styles.terminarButton}
-              onPress={handleTerminarEjercicio}
+              onPress={() => handleTerminarEjercicio(datosUsuariosRespuestas)}
             >
               <Text style={styles.terminarButtonText}>Terminar ejercicio</Text>
             </TouchableOpacity>
