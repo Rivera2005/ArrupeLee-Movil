@@ -1,16 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
-import {
-  View,
-  Image,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-  Text,
-} from "react-native";
+import { View, Image, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Text } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Video } from "expo-av";
+import { Video, ResizeMode } from "expo-av";
 import Header from "../Components/Header";
 
 type RootStackParamList = {
@@ -80,7 +71,7 @@ export default function NivelesLecturasScreen({ navigation }: Props) {
             source={require("../../assets/video-intro.mp4")}
             style={styles.video}
             useNativeControls
-            resizeMode="cover"
+            resizeMode={ResizeMode.COVER}
             isLooping
           />
         </View>

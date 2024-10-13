@@ -18,7 +18,7 @@ export type RootStackParamList = {
   Lecciones: { level: string };
   DetalleLecciones: { id: string };
   BitacoraVuelo: undefined;
-  Preguntas: { leccionId: string };
+  Preguntas: { pruebaId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

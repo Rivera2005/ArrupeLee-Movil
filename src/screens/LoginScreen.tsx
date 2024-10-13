@@ -71,9 +71,14 @@ export default function LoginScreen({ navigation }: Props) {
       } else {
         setError("Credenciales inválidas");
       }
-    } catch (err) {
-      console.error("Error de conexión:", err.message);
-      setError("Error al conectar con el servidor");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Error de conexión:", err.message);
+        setError("Error al conectar con el servidor");
+      } else {
+        console.error("Error de conexión:", err);
+        setError("Error desconocido");
+      }
     }
   };
 

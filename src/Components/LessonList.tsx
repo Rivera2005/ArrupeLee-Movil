@@ -1,23 +1,36 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { View, FlatList, StyleSheet, Text } from "react-native";
 import LessonItem from "./LessonItem";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback } from "react";
 
 type RootStackParamList = {
   Login: undefined;
   Home: undefined;
   Lecciones: undefined;
-  DetalleLecciones: { id: string };
+  DetalleLecciones: { lessonId: string };
 };
 
 type LessonList = NativeStackNavigationProp<RootStackParamList, "Lecciones">;
 
-const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
-  const [lessons, setLessons] = useState([]);
-  const navigation = useNavigation();
+interface Lesson {
+  id: string;
+  title: string;
+  progress: number;
+}
+
+interface LessonListProps {
+  userNivelEducativo: string;
+  userNivelLiterario: string;
+}
+
+const LessonList: React.FC<LessonListProps> = ({
+  userNivelEducativo,
+  userNivelLiterario,
+}) => {
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const navigation = useNavigation<LessonList>();
 
   const loadLessons = async () => {
     try {
@@ -39,9 +52,9 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
       }
 
       const textResponse = await response.text();
-      const fetchedLessons = JSON.parse(textResponse);
+      const fetchedLessons: any[] = JSON.parse(textResponse); // Puedes definir un tipo específico si lo conoces
 
-      const filteredLessons = fetchedLessons.filter((lesson) => {
+      const filteredLessons: Lesson[] = fetchedLessons.filter((lesson: any) => {
         return (
           lesson[4] === userNivelEducativo &&
           lesson[3] === userNivelLiterario &&
@@ -55,8 +68,8 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
         );
       }
 
-      const updatedLessons = await Promise.all(
-        filteredLessons.map(async (lesson) => {
+      const updatedLessons: Lesson[] = await Promise.all(
+        filteredLessons.map(async (lesson: any) => {
           let progress = 0;
           try {
             const progressResponse = await fetch(
@@ -71,22 +84,33 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
                 `No se pudo obtener el progreso para la lección ${lesson[0]}. Estableciendo progreso en 0.`
               );
             }
-          } catch (error) {
-            console.error(
-              `Error al obtener progreso para la lección ${lesson[0]}: ${error.message}`
-            );
+          } catch (error: unknown) {
+            if (error instanceof Error) {
+              console.error(
+                `Error al obtener progreso para la lección ${lesson[0]}: ${error.message}`
+              );
+            } else {
+              console.error(
+                `Error desconocido al obtener progreso para la lección ${lesson[0]}`
+              );
+            }
           }
 
           return {
-            ...lesson,
+            id: lesson[0], // Asegúrate de mapear correctamente según tu estructura
+            title: lesson[1],
             progress,
-          };
+          } as Lesson;
         })
       );
 
       setLessons(updatedLessons);
-    } catch (error) {
-      console.error("Error en loadLessons:", error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error en loadLessons:", error.message);
+      } else {
+        console.error("Error desconocido:", error);
+      }
     }
   };
 
@@ -98,15 +122,15 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
     }, [userNivelEducativo, userNivelLiterario])
   );
 
-  const navigateToLesson = (id) => {
+  const navigateToLesson = (id: string) => {
     navigation.navigate("DetalleLecciones", { lessonId: id });
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: { item: Lesson }) => (
     <LessonItem
-      title={item[1]}
+      title={item.title}
       progress={item.progress || 0}
-      onPress={() => navigateToLesson(item[0])}
+      onPress={() => navigateToLesson(item.id)}
     />
   );
 
@@ -115,7 +139,7 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
       <FlatList
         data={lessons}
         renderItem={renderItem}
-        keyExtractor={(item) => item[0].toString()}
+        keyExtractor={(item) => item.id}
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             No hay lecciones disponibles para este nivel.

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#7E57C2",
     borderRadius: 10,
     marginBottom: 20,
-    width: windowWidth - 20, // Ajusta el ancho a la pantalla menos un pequeño margen
+    width: windowWidth - 20,
     alignSelf: 'center',
   },
   pregunta: {

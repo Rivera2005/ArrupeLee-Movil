@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet, ActivityIndicator, Text } from "react-native";
+import { FlatList, StyleSheet, ActivityIndicator, Text } from "react-native";
 import PreguntasItemComponente from "./PreguntasItemComponente";
 
 type Pregunta = {

@@ -45,8 +45,8 @@ const DetalleLeccionScreen = ({ route }) => {
   };
 
   const data = [
-    { type: 'detail' }, // LeccionDetail item
-    { type: 'prueba', data: intentos }, // PruebaComponent item with the intentos data
+    { type: 'detail' },
+    { type: 'prueba', data: intentos },
   ];
 
   return (

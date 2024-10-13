@@ -1,17 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  ActivityIndicator,
-  TouchableOpacity,
-  SafeAreaView,
-  Modal,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { View, Text, Image, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, SafeAreaView, Modal, TouchableWithoutFeedback } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
@@ -217,7 +205,6 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
         </View>
       </ScrollView>
 
-      {/* Modal para visualizar imagen en pantalla completa */}
       <Modal
         visible={modalVisible}
         transparent={true}
@@ -290,11 +277,11 @@ const styles = StyleSheet.create({
     marginTop: -55,
   },
   imageContainer: {
-    width: screenWidth - 20, // Ajuste para dar margen horizontal
+    width: screenWidth - 20,
     height: screenHeight * 0.4,
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 0, // Margen horizontal para separar las imágenes
+    marginHorizontal: 0,
   },
   image: {
     width: "100%",
@@ -329,8 +316,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   fullScreenImage: {
-    width: screenWidth * 0.95, // Aumentar ancho al 95%
-    height: screenHeight * 0.95, // Aumentar altura al 90%
+    width: screenWidth * 0.95,
+    height: screenHeight * 0.95,
   },
 });
 

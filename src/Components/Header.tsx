@@ -13,7 +13,6 @@ const Header = () => {
     );
   };
   
-
 const styles = StyleSheet.create({
   header: {
     justifyContent: "center",

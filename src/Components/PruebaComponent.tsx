@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // Importar AsyncStorage
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type IntentoPrueba = {
   id: number;
@@ -60,13 +54,17 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
               throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
             }
             const pruebaData = await pruebaResponse.json();
-            setPruebaId(pruebaData[0][3]); // Ajuste para obtener el id de la prueba
+            setPruebaId(pruebaData[0][3]);
           }
         } else {
           console.error("No se encontró el lessonId en AsyncStorage.");
         }
-      } catch (error) {
-        console.error("Error al obtener el id de la prueba:", error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error al obtener el id de la prueba:", error.message);
+        } else {
+          console.error("Error desconocido:", error);
+        }
       }
     };
 
@@ -75,7 +73,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
 
   const iniciarPrueba = () => {
     if (pruebaId) {
-      navigation.navigate("Preguntas", { pruebaId: pruebaId.toString() }); // Pasamos pruebaId como parámetro
+      navigation.navigate("Preguntas", { pruebaId: pruebaId.toString() });
     } else {
       console.warn("El id de la prueba no está disponible.");
     }
