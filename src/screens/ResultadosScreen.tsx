@@ -14,7 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type RootStackParamList = {
   Home: undefined;
   Resultados: { pruebaId: number }; // Recibir pruebaId
-  DetalleLecciones: { id: string }
+  DetalleLecciones: { lessonId: string }; // Asegúrate de que sea el mismo nombre
 };
 
 type ResultadosScreenProps = {
@@ -36,6 +36,7 @@ export default function ResultadosScreen({
   const [userId, setUserId] = useState("");
   const [userNombre, setUserNombre] = useState(""); // Estado para el nombre
   const [userApellido, setUserApellido] = useState(""); // Estado para el apellido
+  const [lessonId, setLessonId] = useState<string | null>(null); // Estado para el lessonId
 
   // Obtener pruebaId de los parámetros
   const pruebaId = route.params.pruebaId;
@@ -47,10 +48,12 @@ export default function ResultadosScreen({
         const storedUserId = await AsyncStorage.getItem("userId");
         const storedUserNombre = await AsyncStorage.getItem("userNombre"); // Obtener el nombre
         const storedUserApellido = await AsyncStorage.getItem("userApellido"); // Obtener el apellido
+        const storedLessonId = await AsyncStorage.getItem("lessonId"); // Obtener el lessonId
 
         console.log("Stored User ID:", storedUserId);
         console.log("Stored User Nombre:", storedUserNombre);
         console.log("Stored User Apellido:", storedUserApellido);
+        console.log("Stored Lesson ID:", storedLessonId); // Log para el lessonId
 
         if (storedUserId) {
           setUserId(storedUserId);
@@ -61,6 +64,9 @@ export default function ResultadosScreen({
         if (storedUserApellido) {
           setUserApellido(storedUserApellido);
         }
+        if (storedLessonId) {
+          setLessonId(storedLessonId); // Guardar el lessonId en el estado
+        }
 
         // Obtener los resultados de la prueba filtrando por userId y pruebaId
         const responseResultados = await fetch(
@@ -69,39 +75,17 @@ export default function ResultadosScreen({
         const resultadosData = await responseResultados.json();
 
         // Log de resultados recibidos
-        console.log("Resultados Data:", resultadosData); // Agregar este log
+        console.log("Resultados Data:", resultadosData);
 
         const filteredResultados = resultadosData.filter((resultado: any) => {
           const resultadoUserId = resultado[2]; // userId
           const resultadoPruebaId = resultado[1]; // pruebaId
-
-          // Asegúrate de que ambos valores sean del mismo tipo para la comparación
-          console.log(
-            "Comparando userId:",
-            resultadoUserId,
-            "con storedUserId:",
-            storedUserId
-          );
-          console.log(
-            "Comparando pruebaId:",
-            resultadoPruebaId,
-            "con pruebaId:",
-            pruebaId
-          );
 
           return (
             resultadoUserId.toString() === storedUserId &&
             resultadoPruebaId.toString() === pruebaId.toString()
           );
         });
-
-        // Log para verificar resultados filtrados
-        console.log("Filtered Resultados:", filteredResultados);
-        if (filteredResultados.length === 0) {
-          console.log("No se encontraron resultados filtrados.");
-        }
-
-        console.log("Filtered Resultados:", filteredResultados); // Mostrar resultados filtrados
 
         // Si hay resultados filtrados, obtener el más reciente
         if (filteredResultados.length > 0) {
@@ -111,9 +95,7 @@ export default function ResultadosScreen({
               : latest; // Comparar por fecha
           });
 
-          setResultados([latestResult]); // Solo guardar el resultado más reciente
-
-          console.log("Latest Result:", latestResult); // Mostrar el resultado más reciente
+          setResultados([latestResult]);
 
           // Obtener información de la prueba
           const pruebaId = latestResult[1]; // Obtener el pruebaId
@@ -122,15 +104,10 @@ export default function ResultadosScreen({
           );
           const pruebaData = await responsePrueba.json();
 
-          console.log("Prueba Data:", pruebaData); // Mostrar datos de la prueba
-
           const pruebaInfo = pruebaData.find((p: any) => p[0] === pruebaId);
           if (pruebaInfo) {
             setTitulo(pruebaInfo[1]); // Título de la prueba
-            console.log("Prueba Titulo:", pruebaInfo[1]); // Mostrar el título de la prueba
           }
-        } else {
-          console.log("No se encontraron resultados filtrados."); // No hay resultados
         }
       } catch (error) {
         console.error("Error al obtener los resultados:", error);
@@ -140,14 +117,18 @@ export default function ResultadosScreen({
     };
 
     fetchResultados();
-  }, [navigation, pruebaId]); // Agregar pruebaId como dependencia
+  }, [navigation, pruebaId]);
 
   const handleRealizarOtroIntento = () => {
     // Implementa la lógica para realizar otro intento
   };
 
   const handleRegresarListaIntentos = () => {
-    navigation.navigate("DetalleLecciones", { lessonId: id });
+    if (lessonId) {
+      navigation.navigate("DetalleLecciones", { lessonId: lessonId }); // Navegar a DetalleLecciones con el lessonId
+    } else {
+      console.warn("No se encontró el lessonId para navegar.");
+    }
   };
 
   if (loading) {
@@ -173,7 +154,7 @@ export default function ResultadosScreen({
               <ResultadoComponente
                 key={index}
                 titulo={`${titulo} : Resultado`}
-                nombreUsuario={`${userNombre} ${userApellido}`} // Ahora se obtienen correctamente
+                nombreUsuario={`${userNombre} ${userApellido}`}
                 idUsuario={resultado[3]} // ID de usuario desde el resultado
                 fechaInicio={new Date(resultado[5]).toLocaleString()} // Formatea la fecha
                 respuestasGuardadas={resultado[4]} // Puntaje

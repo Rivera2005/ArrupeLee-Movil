@@ -34,7 +34,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   const [leccionId, setLeccionId] = useState<string | null>(null);
   const [pruebaId, setPruebaId] = useState<string | null>(null);
 
-  useEffect(() => {
+  useEffect(() => {    
     const getLeccionId = async () => {
       try {
         if (route.params?.leccionId) {

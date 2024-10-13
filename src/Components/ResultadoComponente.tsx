@@ -47,12 +47,11 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
         )}
       </View>
       <Text style={styles.felicitaciones}>
-        {puntuacion >= 6
-          ? "Felicitaciones ha aprobado el ejercicio."
-          : "No ha alcanzado el puntaje mínimo."}
+        {puntuacion < 60
+          ? "No ha alcanzado el puntaje mínimo."
+          : "Felicitaciones ha aprobado el ejercicio."}
       </Text>
       <View style={styles.botonesContainer}>
-        
         <TouchableOpacity
           style={styles.botonRegresar}
           onPress={onRegresarListaIntentos}
@@ -63,7 +62,6 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#673AB7',

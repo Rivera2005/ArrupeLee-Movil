@@ -14,6 +14,7 @@ type IntentoPrueba = {
 type PruebaComponentProps = {
   intentos: IntentoPrueba[];
   onMostrarDetalles: (id: number) => void;
+
 };
 
 const PruebaComponent: React.FC<PruebaComponentProps> = ({
