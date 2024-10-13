@@ -7,13 +7,11 @@ interface ResultadoComponenteProps {
   idUsuario: string;
   fechaInicio: string;
   duracion: string;
-  ip: string;
   respuestasGuardadas: number;
-  totalRespuestas: number;
   puntuacion: number;
   puntuacionMaxima: number;
-  onRealizarOtroIntento: () => void;
   onRegresarListaIntentos: () => void;
+  mensajeAdicional?: string; // Agregar este prop
 }
 
 const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
@@ -23,8 +21,8 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
   fechaInicio,
   puntuacion,
   puntuacionMaxima,
-  onRealizarOtroIntento,
   onRegresarListaIntentos,
+  mensajeAdicional, // Recibir el nuevo prop
 }) => {
   return (
     <View style={styles.container}>
@@ -44,17 +42,17 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
         <Text style={styles.puntuacionText}>
           Su puntuación total es: {puntuacion} / {puntuacionMaxima}
         </Text>
+        {mensajeAdicional && ( // Mostrar mensaje adicional si existe
+          <Text style={styles.mensajeAdicional}>{mensajeAdicional}</Text>
+        )}
       </View>
       <Text style={styles.felicitaciones}>
-        Felicitaciones ha aprobado el ejercicio.
+        {puntuacion >= 6
+          ? "Felicitaciones ha aprobado el ejercicio."
+          : "No ha alcanzado el puntaje mínimo."}
       </Text>
       <View style={styles.botonesContainer}>
-        <TouchableOpacity
-          style={styles.botonRealizarOtro}
-          onPress={onRealizarOtroIntento}
-        >
-          <Text style={styles.botonTexto}>Realizar otro intento</Text>
-        </TouchableOpacity>
+        
         <TouchableOpacity
           style={styles.botonRegresar}
           onPress={onRegresarListaIntentos}
@@ -153,6 +151,11 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'center',
     fontWeight: 'bold',
+  },
+  mensajeAdicional: {
+    color: 'red',
+    fontWeight: 'bold',
+    marginTop: 10,
   },
 });
 
