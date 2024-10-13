@@ -26,7 +26,7 @@ const CompletedLessonsScreen = () => {
       }
 
       const response = await fetch(
-        `http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante`
+        `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante`
       );
 
       if (!response.ok) {
@@ -42,7 +42,7 @@ const CompletedLessonsScreen = () => {
       for (const lesson of progressData) {
         if (lesson[1] == userId && lesson[4] === 100) {
           const lessonResponse = await fetch(
-            `http://192.242.6.128:8085/arrupe/sv/arrupe/lecciones/${lesson[3]}`
+            `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones/${lesson[3]}`
           );
 
           if (!lessonResponse.ok) {

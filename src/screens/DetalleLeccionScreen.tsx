@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, StyleSheet, SafeAreaView, StatusBar } from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
@@ -23,21 +23,42 @@ const intentos = [
 const DetalleLeccionScreen = ({ route }) => {
   const { lessonId } = route.params;
 
+  const renderItem = ({ item }: { item: any }) => {
+    if (item.type === 'detail') {
+      return (
+        <View style={styles.sectionContainer}>
+          <LeccionDetail lessonId={lessonId} />
+        </View>
+      );
+    } else if (item.type === 'prueba') {
+      return (
+        <View style={styles.sectionContainer}>
+          <PruebaComponent
+            intentos={item.data}
+            onIniciarPrueba={() => console.log("Iniciar prueba")}
+            onMostrarDetalles={(id) => console.log("Mostrar detalles del intento", id)}
+          />
+        </View>
+      );
+    }
+    return null;
+  };
+
+  const data = [
+    { type: 'detail' }, // LeccionDetail item
+    { type: 'prueba', data: intentos }, // PruebaComponent item with the intentos data
+  ];
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor="#512DA8" barStyle="light-content" />
       <Header />
       <NavigationBar />
-      <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
-        <LeccionDetail lessonId={lessonId} />
-        <PruebaComponent
-          intentos={intentos}
-          onIniciarPrueba={() => console.log("Iniciar prueba")}
-          onMostrarDetalles={(id) =>
-            console.log("Mostrar detalles del intento", id)
-          }
-        />
-      </ScrollView>
+      <FlatList
+        data={data}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+      />
     </SafeAreaView>
   );
 };
@@ -45,15 +66,10 @@ const DetalleLeccionScreen = ({ route }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#512DA8",
-  },
-  scrollView: {
-    flex: 1,
     backgroundColor: "#673AB7",
   },
-  contentContainer: {
-    flexGrow: 1,
-    paddingBottom: 20,
+  sectionContainer: {
+    padding: 10,
   },
 });
 

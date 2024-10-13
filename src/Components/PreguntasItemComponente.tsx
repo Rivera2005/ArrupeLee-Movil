@@ -1,68 +1,54 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import OpcionesComponente from "./OpcionesComponente";
 
 type PreguntaItemProps = {
   pregunta: string;
-  opciones: string[];
+  preguntaId: string;
   onSelectOpcion: (opcion: string) => void;
 };
 
-const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
-  pregunta,
-  opciones,
-  onSelectOpcion,
-}) => {
+const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({ pregunta, preguntaId, onSelectOpcion }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.pregunta}>{pregunta}</Text>
-      {opciones.map((opcion, index) => (
-        <TouchableOpacity
-          key={index}
-          style={styles.opcionButton}
-          onPress={() => onSelectOpcion(opcion)}
-        >
-          <Text style={styles.opcionText}>{opcion}</Text>
-        </TouchableOpacity>
-      ))}
-      <TouchableOpacity style={styles.guardarButton}>
-        <Text style={styles.guardarButtonText}>Guardar y continuar</Text>
+      <OpcionesComponente preguntaId={preguntaId} onSelectOpcion={onSelectOpcion} />
+      <TouchableOpacity style={styles.continuarButton}>
+        <Text style={styles.continuarButtonText}>Guardar y continuar</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
+const windowWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   container: {
+    padding: 15,
     backgroundColor: "#7E57C2",
     borderRadius: 10,
-    padding: 20,
-    margin: 10,
+    marginBottom: 20,
+    width: windowWidth - 20, // Ajusta el ancho a la pantalla menos un pequeño margen
+    alignSelf: 'center',
   },
   pregunta: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-  },
-  opcionButton: {
-    backgroundColor: "white",
-    borderRadius: 5,
-    padding: 10,
+    fontSize: 20,
+    fontWeight: 'bold',
     marginBottom: 10,
+    color: "#fff",
+    textAlign: "center",
   },
-  opcionText: {
-    color: "#673AB7",
-  },
-  guardarButton: {
-    backgroundColor: "#4DD0E1",
-    borderRadius: 5,
+  continuarButton: {
+    backgroundColor: '#4FC3F7',
     padding: 10,
-    alignItems: "center",
-    marginTop: 10,
+    marginTop: 15,
+    borderRadius: 5,
+    alignItems: 'center',
   },
-  guardarButtonText: {
-    color: "white",
-    fontWeight: "bold",
+  continuarButtonText: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: 'bold',
   },
 });
 

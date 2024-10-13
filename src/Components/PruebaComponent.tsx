@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../navigation/StackNavigator"; // Asegúrate de que esté en el lugar correcto
+import { RootStackParamList } from "../../navigation/StackNavigator";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Importar AsyncStorage
 
 type IntentoPrueba = {
   id: number;
@@ -25,7 +26,60 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   intentos,
   onMostrarDetalles,
 }) => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const [pruebaId, setPruebaId] = useState<number | null>(null);
+  const [lessonId, setLessonId] = useState<number | null>(null);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  useEffect(() => {
+    const fetchLessonPruebaId = async () => {
+      try {
+        const storedLessonId = await AsyncStorage.getItem("lessonId");
+        if (storedLessonId) {
+          const parsedLessonId = parseInt(storedLessonId, 10);
+          setLessonId(parsedLessonId);
+
+          const response = await fetch(
+            "http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas"
+          );
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const matchingLesson = data.find(
+            (lesson: any[]) => lesson[1] === parsedLessonId
+          );
+
+          if (matchingLesson) {
+            const id_leccion_prueba = matchingLesson[0];
+            const pruebaResponse = await fetch(
+              `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
+            );
+            if (!pruebaResponse.ok) {
+              throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
+            }
+            const pruebaData = await pruebaResponse.json();
+            setPruebaId(pruebaData[0][3]); // Ajuste para obtener el id de la prueba
+          }
+        } else {
+          console.error("No se encontró el lessonId en AsyncStorage.");
+        }
+      } catch (error) {
+        console.error("Error al obtener el id de la prueba:", error.message);
+      }
+    };
+
+    fetchLessonPruebaId();
+  }, []);
+
+  const iniciarPrueba = () => {
+    if (pruebaId) {
+      navigation.navigate("Preguntas", { pruebaId: pruebaId.toString() }); // Pasamos pruebaId como parámetro
+    } else {
+      console.warn("El id de la prueba no está disponible.");
+    }
+  };
 
   const renderItem = ({ item }: { item: IntentoPrueba }) => (
     <View style={styles.row}>
@@ -40,11 +94,6 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
       </TouchableOpacity>
     </View>
   );
-
-  const iniciarPrueba = () => {
-    // Navegar a la pantalla de "Preguntas"
-    navigation.navigate("Preguntas");
-  };
 
   return (
     <View style={styles.container}>
@@ -71,8 +120,9 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    marginTop: -40,
+    padding: 10,
+    marginTop: 0,
+    paddingTop: 0,
   },
   title: {
     fontSize: 20,
@@ -115,7 +165,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#5E35B1",
     padding: 8,
-    paddingLeft: -30,
   },
   cell: {
     flex: 1,

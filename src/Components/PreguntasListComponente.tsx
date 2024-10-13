@@ -1,60 +1,92 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, ActivityIndicator, Text } from "react-native";
 import PreguntasItemComponente from "./PreguntasItemComponente";
 
 type Pregunta = {
   id: string;
   pregunta: string;
-  opciones: string[];
+  pruebaId: string;
 };
 
-const PreguntasListComponente: React.FC = () => {
+type PreguntasListComponenteProps = {
+  pruebaId: string;
+  renderFooter: () => React.ReactElement;
+};
+
+const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
+  pruebaId,
+  renderFooter,
+}) => {
   const [preguntas, setPreguntas] = useState<Pregunta[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Aquí irá la lógica para cargar las preguntas desde una API
-    // Por ahora, usaremos datos de ejemplo
-    setPreguntas([
-      {
-        id: "1",
-        pregunta: "¿Por qué el ratón foráneo comió con el ratón citadino?",
-        opciones: [
-          "Porque el ratón citadino lo invitó a comer",
-          "Porque el ratón foráneo estaba perdido en la ciudad y tenía hambre.",
-          "Porque el ratón citadino quería presumir de sus comodidades.",
-          "Porque eran amigos desde hace mucho tiempo y se reunieron para cenar.",
-        ],
-      },
-      // Añadir más preguntas aquí...
-    ]);
-  }, []);
+    const fetchPreguntas = async () => {
+      try {
+        const response = await fetch(
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/preguntas"
+        );
+        const data = await response.json();
 
-  const handleSelectOpcion = (preguntaId: string, opcion: string) => {
-    // Aquí irá la lógica para manejar la selección de una opción
-    console.log(`Pregunta ${preguntaId}, opción seleccionada: ${opcion}`);
-  };
+        const preguntasFiltradas = data.filter((pregunta: any[]) => {
+          return pregunta[3].toString() === pruebaId;
+        });
+
+        const preguntasMapeadas = preguntasFiltradas.map((pregunta: any[]) => ({
+          id: pregunta[0].toString(),
+          pregunta: pregunta[1],
+          pruebaId: pregunta[3],
+        }));
+
+        setPreguntas(preguntasMapeadas);
+      } catch (error) {
+        setError("Error al cargar las preguntas.");
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPreguntas();
+  }, [pruebaId]);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#FFD700" />;
+  }
+
+  if (error) {
+    return <Text style={styles.errorText}>{error}</Text>;
+  }
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={preguntas}
-        renderItem={({ item }) => (
-          <PreguntasItemComponente
-            pregunta={item.pregunta}
-            opciones={item.opciones}
-            onSelectOpcion={(opcion) => handleSelectOpcion(item.id, opcion)}
-          />
-        )}
-        keyExtractor={(item) => item.id}
-      />
-    </View>
+    <FlatList
+      data={preguntas}
+      renderItem={({ item }) => (
+        <PreguntasItemComponente
+          pregunta={item.pregunta}
+          preguntaId={item.id}
+          onSelectOpcion={(opcion) =>
+            console.log(`Pregunta ${item.id}, opción seleccionada: ${opcion}`)
+          }
+        />
+      )}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.listContent}
+      ListFooterComponent={renderFooter}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#673AB7",
+  listContent: {
+    paddingHorizontal: 10,
+    paddingVertical: 20,
+  },
+  errorText: {
+    color: "white",
+    textAlign: "center",
+    marginTop: 20,
   },
 });
 

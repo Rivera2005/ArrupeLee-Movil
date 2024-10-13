@@ -9,33 +9,37 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   SafeAreaView,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 type LeccionDetailProps = {
-  lessonId: number; // Tipamos explícitamente lessonId
+  lessonId: number;
 };
 
 const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
   const [lessonDetail, setLessonDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const scrollViewRef = useRef<ScrollView>(null); // Especificamos el tipo RefObject<ScrollView>
-  const [userId, setUserId] = useState<string | null>(null); // Añadimos el tipo string o null
+  const scrollViewRef = useRef<ScrollView>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [lastReportedIndex, setLastReportedIndex] = useState<number | null>(
     null
-  ); // Añadimos el tipo número o null
+  );
   const [maxPorcentajeCompletado, setMaxPorcentajeCompletado] =
     useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLessonDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.242.6.128:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
+          `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -43,22 +47,21 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
         const data = await response.json();
         setLessonDetail(data[0]);
 
-        // Establecer imágenes aquí
         const imagesArray = data[0][5].split(",");
         setImages(imagesArray);
 
         const storedUserId = await AsyncStorage.getItem("userId");
         setUserId(storedUserId);
+        await AsyncStorage.setItem("lessonId", lessonId.toString());
 
         if (storedUserId) {
           const progresoResponse = await fetch(
-            `http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
+            `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
           );
           if (progresoResponse.ok) {
             const progresoData = await progresoResponse.json();
             setMaxPorcentajeCompletado(progresoData.porcentajeCompletado);
 
-            // Calcula el índice basado en el porcentaje guardado
             const totalImages = imagesArray.length;
             const savedIndex = Math.floor(
               (progresoData.porcentajeCompletado / 100) * totalImages
@@ -74,10 +77,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
             }, 100);
           }
         }
-
-        await registrarProgreso(0);
       } catch (error: any) {
-        // Tipamos explícitamente error como 'any'
         console.error("Error en fetchLessonDetail:", error.message);
       } finally {
         setLoading(false);
@@ -87,13 +87,11 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
   }, [lessonId]);
 
   const registrarProgreso = async (index: number) => {
-    // Tipamos el parámetro 'index'
     if (images.length === 0) return;
 
     const totalImages = images.length;
     let porcentajeCompletado = ((index + 1) / totalImages) * 100;
 
-    // No actualizar si el nuevo porcentaje es menor que el máximo registrado
     if (porcentajeCompletado > maxPorcentajeCompletado) {
       setMaxPorcentajeCompletado(porcentajeCompletado);
 
@@ -109,7 +107,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
         }
 
         const response = await fetch(
-          "http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
           {
             method: "POST",
             headers: {
@@ -130,14 +128,12 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
           console.log(`Progreso del usuario ${userId} registrado con éxito.`);
         }
       } catch (error: any) {
-        // Tipamos explícitamente error como 'any'
         console.error("Error al actualizar el progreso:", error.message);
       }
     }
   };
 
   const handleScroll = async (event: any) => {
-    // Tipamos 'event'
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const index = Math.round(contentOffsetX / screenWidth);
 
@@ -147,6 +143,11 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
 
       await registrarProgreso(index);
     }
+  };
+
+  const handleImagePress = (imageUri: string) => {
+    setSelectedImage(imageUri);
+    setModalVisible(true);
   };
 
   if (loading) {
@@ -182,13 +183,17 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
             scrollEventThrottle={16}
           >
             {images.map((imageUri, index) => (
-              <View key={index} style={styles.imageContainer}>
+              <TouchableOpacity
+                key={index}
+                style={styles.imageContainer}
+                onPress={() => handleImagePress(imageUri)}
+              >
                 <Image
                   source={{ uri: imageUri }}
                   style={styles.image}
                   resizeMode="contain"
                 />
-              </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
           <View style={styles.pagination}>
@@ -211,6 +216,25 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
           </View>
         </View>
       </ScrollView>
+
+      {/* Modal para visualizar imagen en pantalla completa */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalBackground}>
+            {selectedImage && (
+              <Image
+                source={{ uri: selectedImage }}
+                style={styles.fullScreenImage}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -218,7 +242,6 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
   },
   scrollContent: {
     flexGrow: 1,
@@ -242,7 +265,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   headerContainer: {
-    padding: 16,
+    padding: 15,
   },
   title: {
     fontSize: 24,
@@ -252,17 +275,14 @@ const styles = StyleSheet.create({
     textShadowColor: "rgba(0, 0, 0, 0.75)",
     textShadowOffset: { width: -1, height: 1 },
     textShadowRadius: 10,
-  },
-  level: {
-    fontSize: 18,
-    marginBottom: 4,
-    color: "#fff",
+    textAlign: "center",
   },
   educationLevel: {
     paddingTop: 5,
     fontSize: 16,
     marginBottom: 0,
     color: "#fff",
+    textAlign: "center",
   },
   carouselContainer: {
     height: screenHeight * 0.4,
@@ -270,13 +290,14 @@ const styles = StyleSheet.create({
     marginTop: -55,
   },
   imageContainer: {
-    width: screenWidth,
+    width: screenWidth - 20, // Ajuste para dar margen horizontal
     height: screenHeight * 0.4,
     justifyContent: "center",
     alignItems: "center",
+    marginHorizontal: 0, // Margen horizontal para separar las imágenes
   },
   image: {
-    width: "96%",
+    width: "100%",
     height: "100%",
   },
   pagination: {
@@ -300,6 +321,16 @@ const styles = StyleSheet.create({
     width: 10,
     height: 10,
     borderRadius: 5,
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  fullScreenImage: {
+    width: screenWidth * 0.95, // Aumentar ancho al 95%
+    height: screenHeight * 0.95, // Aumentar altura al 90%
   },
 });
 

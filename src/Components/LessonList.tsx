@@ -28,7 +28,7 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
       }
 
       const response = await fetch(
-        `http://192.242.6.128:8085/arrupe/sv/arrupe/lecciones`
+        `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones`
       );
 
       if (!response.ok) {
@@ -55,13 +55,12 @@ const LessonList = ({ userNivelEducativo, userNivelLiterario }) => {
         );
       }
 
-      // Obtener progreso para cada lección
       const updatedLessons = await Promise.all(
         filteredLessons.map(async (lesson) => {
           let progress = 0;
           try {
             const progressResponse = await fetch(
-              `http://192.242.6.128:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+              `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
             );
 
             if (progressResponse.ok) {
