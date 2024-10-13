@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  FlatList,
+  View,
+} from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
@@ -47,15 +53,14 @@ const DetalleLeccionScreen = ({ route }) => {
           (intento: any[]) =>
             intento[1] === pruebaId && intento[2] === parseInt(userId, 10)
         )
+        .sort((a, b) => new Date(a[5]).getTime() - new Date(b[5]).getTime()) // Ordena antes para obtener el índice correcto
         .map((intento: any[], index: number) => ({
-          id: index + 1,
+          id: intento[0], // Usa el ID real
           fecha: intento[5],
           fechaFormateada: formatearFecha(intento[5]),
           puntuacion: `${intento[4]}% (${(intento[4] / 10).toFixed(2)} / 10)`,
-        }))
-        .sort(
-          (a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime()
-        );
+          indiceConsecutivo: index + 1, // Genera el índice consecutivo para mostrar
+        }));
 
       setIntentos(intentosFiltrados);
     } catch (error) {
@@ -138,7 +143,6 @@ const DetalleLeccionScreen = ({ route }) => {
     </SafeAreaView>
   );
 };
-
 
 const styles = StyleSheet.create({
   safeArea: {

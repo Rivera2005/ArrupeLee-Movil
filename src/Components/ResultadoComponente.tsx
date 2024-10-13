@@ -11,7 +11,6 @@ interface ResultadoComponenteProps {
   puntuacion: number;
   puntuacionMaxima: number;
   onRegresarListaIntentos: () => void;
-  mensajeAdicional?: string;
 }
 
 const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
@@ -22,7 +21,6 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
   puntuacion,
   puntuacionMaxima,
   onRegresarListaIntentos,
-  mensajeAdicional,
 }) => {
   return (
     <View style={styles.container}>
@@ -42,9 +40,7 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
         <Text style={styles.puntuacionText}>
           Su puntuación total es: {puntuacion} / {puntuacionMaxima}
         </Text>
-        {mensajeAdicional && (
-          <Text style={styles.mensajeAdicional}>{mensajeAdicional}</Text>
-        )}
+       
       </View>
       <Text style={styles.felicitaciones}>
         {puntuacion < 60
@@ -62,6 +58,7 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#673AB7',

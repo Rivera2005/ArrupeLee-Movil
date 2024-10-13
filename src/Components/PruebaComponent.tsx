@@ -16,7 +16,9 @@ type IntentoPrueba = {
   fecha: string;
   fechaFormateada: string;
   puntuacion: string;
+  indiceConsecutivo: number; // Agrega el campo aquí
 };
+
 
 type PruebaComponentProps = {
   intentos: IntentoPrueba[];
@@ -27,7 +29,6 @@ type PruebaComponentProps = {
 
 const PruebaComponent: React.FC<PruebaComponentProps> = ({
   intentos,
-  onMostrarDetalles,
   onObtenerPruebaId,
   formatearFecha,
 }) => {
@@ -96,14 +97,18 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
     }
   };
 
+  const onMostrarDetalle = (intentoId: number) => {
+    navigation.navigate("ResultadoIntento", { intentoId }); // Pasar intentoId
+  };
+
   const renderItem = ({ item }: { item: IntentoPrueba }) => (
     <View style={styles.row}>
-      <Text style={styles.cell}>{item.id}</Text>
+      <Text style={styles.cell}>{item.indiceConsecutivo}</Text>
       <Text style={styles.cell}>{item.fechaFormateada}</Text>
       <Text style={styles.cell}>{item.puntuacion}</Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => onMostrarDetalles(item.id)}
+        onPress={() => onMostrarDetalle(item.id)} // Usa el ID real para operaciones
       >
         <Text style={styles.buttonText}>Mostrar</Text>
       </TouchableOpacity>

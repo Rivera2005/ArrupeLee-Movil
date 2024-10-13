@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ResultadoComponente from "../Components/ResultadoComponente";
 import Header from "../Components/Header";
@@ -131,12 +136,6 @@ export default function ResultadosScreen({
           <ActivityIndicator size="large" color="#0000ff" />
         ) : (
           resultados.map((resultado, index) => {
-            const puntuacionObtenida = resultado[4];
-            const mensajeAdicional =
-              puntuacionObtenida < 6
-                ? "No ha alcanzado el puntaje mínimo."
-                : undefined;
-
             return (
               <ResultadoComponente
                 key={index}
@@ -148,7 +147,6 @@ export default function ResultadosScreen({
                 puntuacion={resultado[4]}
                 puntuacionMaxima={100}
                 onRegresarListaIntentos={handleRegresarListaIntentos}
-                mensajeAdicional={mensajeAdicional}
               />
             );
           })
@@ -167,4 +165,4 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
-})
+});

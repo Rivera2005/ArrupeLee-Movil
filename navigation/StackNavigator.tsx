@@ -10,6 +10,8 @@ import DetalleLeccionScreen from "../src/screens/DetalleLeccionScreen";
 import CompletedLessonsScreen from "../src/screens/CompletedLessonsScreen";
 import PreguntasScreen from "../src/screens/PreguntasScreen";
 import ResultadosScreen from "../src/screens/ResultadosScreen";
+import ResultadoIntentoScreen from "../src/screens/ResultadoIntentoScreen";
+
 
 export type RootStackParamList = {
   Login: undefined;
@@ -21,6 +23,8 @@ export type RootStackParamList = {
   BitacoraVuelo: undefined;
   Preguntas: { pruebaId: string };
   Resultados: { pruebaId: number };
+  ResultadoIntento: { intentoId: number };
+
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -72,6 +76,11 @@ const StackNavigator = () => {
         <Stack.Screen
           name="Resultados"
           component={ResultadosScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ResultadoIntento"
+          component={ResultadoIntentoScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
