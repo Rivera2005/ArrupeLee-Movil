@@ -19,7 +19,6 @@ type IntentoPrueba = {
   indiceConsecutivo: number; // Agrega el campo aquí
 };
 
-
 type PruebaComponentProps = {
   intentos: IntentoPrueba[];
   onMostrarDetalles: (id: number) => void;
@@ -46,7 +45,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           setLessonId(parsedLessonId);
 
           const response = await fetch(
-            "http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas"
+            "http://192.242.6.93:8085/arrupe/sv/arrupe/leccionesPruebas"
           );
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -60,7 +59,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           if (matchingLesson) {
             const id_leccion_prueba = matchingLesson[0];
             const pruebaResponse = await fetch(
-              `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
+              `http://192.242.6.93:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
             );
             if (!pruebaResponse.ok) {
               throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
@@ -129,7 +128,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           <Text style={styles.headerText}>Detalles</Text>
         </View>
         <FlatList
-          data={intentos}
+          data={[...intentos].reverse()} // Invierte el orden de los intentos
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />

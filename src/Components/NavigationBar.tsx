@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, TouchableOpacity, StyleSheet, Text, Modal, Image } from "react-native";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  Modal,
+  Image,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
@@ -73,7 +80,9 @@ const NavigationBar = () => {
                 source={require("../../assets/perfilDefault.png")}
                 style={styles.avatar}
               />
-              <Text style={styles.userName}>{userNombre} {userApellido}</Text>
+              <Text style={styles.userName}>
+                {userNombre} {userApellido}
+              </Text>
               <Text style={styles.userEmail}>{userCorreo}</Text>
             </View>
             <TouchableOpacity
@@ -99,7 +108,10 @@ const NavigationBar = () => {
                 <Ionicons name="mail-outline" size={24} color="#666" />
                 <Text style={styles.footerItemText}>Bandeja de entrada</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.footerItem}>
+              <TouchableOpacity
+                style={styles.footerItem}
+                onPress={() => navigation.navigate("Certificados")}
+              >
                 <Ionicons name="school-outline" size={24} color="#666" />
                 <Text style={styles.footerItemText}>Mis certificados</Text>
               </TouchableOpacity>

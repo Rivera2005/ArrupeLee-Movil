@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from "react-native";
 import OpcionesComponente from "./OpcionesComponente";
 
 type PreguntaItemProps = {
@@ -14,11 +14,13 @@ const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
   onSelectOpcion,
 }) => {
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
+  const [guardado, setGuardado] = useState(false);
 
   const handleGuardarYContinuar = () => {
     if (opcionSeleccionada) {
       console.log(`Pregunta ${preguntaId}: Opción seleccionada: ${opcionSeleccionada}`);
       onSelectOpcion(opcionSeleccionada);
+      setGuardado(true);
     } else {
       console.warn(`No se seleccionó ninguna opción para la pregunta ${preguntaId}`);
     }
@@ -33,6 +35,12 @@ const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
       />
       <TouchableOpacity style={styles.continuarButton} onPress={handleGuardarYContinuar}>
         <Text style={styles.continuarButtonText}>Guardar y continuar</Text>
+        {guardado && (
+          <Image
+            source={{ uri: "http://arrupelee.edu.sv/main/img/icons/22/save.png" }}
+            style={styles.iconoGuardado}
+          />
+        )}
       </TouchableOpacity>
     </View>
   );
@@ -68,6 +76,11 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 15,
     fontWeight: 'bold',
+  },
+  iconoGuardado: {
+    width: 20,
+    height: 20,
+    marginLeft: 10,
   },
 });
 

@@ -27,7 +27,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
     const fetchLessonDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
+          `http://192.242.6.93:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -44,7 +44,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
 
         if (storedUserId) {
           const progresoResponse = await fetch(
-            `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
+            `http://192.242.6.93:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
           );
           if (progresoResponse.ok) {
             const progresoData = await progresoResponse.json();
@@ -95,7 +95,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
         }
 
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+          "http://192.242.6.93:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
           {
             method: "POST",
             headers: {

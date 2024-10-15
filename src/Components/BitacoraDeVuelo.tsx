@@ -1,8 +1,12 @@
 import React, { useState, useCallback } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  RouteProp,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { RootStackParamList } from "../../navigation/StackNavigator";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
@@ -30,7 +34,7 @@ const BitacoraDeVuelo: React.FC = () => {
           }
 
           const response = await fetch(
-            `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones`
+            `http://192.242.6.93:8085/arrupe/sv/arrupe/lecciones`
           );
 
           if (!response.ok) {
@@ -56,7 +60,7 @@ const BitacoraDeVuelo: React.FC = () => {
             const progressArray = await Promise.all(
               lessons.map(async (lesson: any[]) => {
                 const progressResponse = await fetch(
-                  `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+                  `http://192.242.6.93:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
                 );
                 if (progressResponse.ok) {
                   const progressData = await progressResponse.json();
@@ -81,6 +85,20 @@ const BitacoraDeVuelo: React.FC = () => {
           setProgressLiteral(literalProgress);
           setProgressInferencial(inferencialProgress);
           setProgressCritico(criticoProgress);
+
+          // Después de calcular el progreso en cada nivel:
+          await AsyncStorage.setItem(
+            "progressLiteral",
+            literalProgress.toString()
+          );
+          await AsyncStorage.setItem(
+            "progressInferencial",
+            inferencialProgress.toString()
+          );
+          await AsyncStorage.setItem(
+            "progressCritico",
+            criticoProgress.toString()
+          );
         } catch (error) {
           if (error instanceof Error) {
             console.error(

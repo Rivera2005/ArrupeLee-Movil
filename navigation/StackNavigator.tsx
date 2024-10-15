@@ -11,6 +11,7 @@ import CompletedLessonsScreen from "../src/screens/CompletedLessonsScreen";
 import PreguntasScreen from "../src/screens/PreguntasScreen";
 import ResultadosScreen from "../src/screens/ResultadosScreen";
 import ResultadoIntentoScreen from "../src/screens/ResultadoIntentoScreen";
+import PlanetArrupeCertificadosScreen from "../src/screens/CertificadosScreen";
 
 
 export type RootStackParamList = {
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   Preguntas: { pruebaId: string };
   Resultados: { pruebaId: number };
   ResultadoIntento: { intentoId: number };
+  Certificados: undefined;
 
 };
 
@@ -81,6 +83,11 @@ const StackNavigator = () => {
         <Stack.Screen
           name="ResultadoIntento"
           component={ResultadoIntentoScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Certificados"
+          component={PlanetArrupeCertificadosScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

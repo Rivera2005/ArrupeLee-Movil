@@ -93,7 +93,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
         // Fetch para obtener si la respuesta es correcta
         const response = await fetch(
-          `http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.242.6.93:8085/arrupe/sv/arrupe/respuestas`
         );
 
         if (!response.ok) {
@@ -154,7 +154,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         console.log("Enviando respuesta:", JSON.stringify(respuesta));
 
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
+          "http://192.242.6.93:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
           {
             method: "POST",
             headers: {
@@ -198,7 +198,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       );
 
       const responseGuardarResultados = await fetch(
-        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
+        "http://192.242.6.93:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
         {
           method: "POST",
           headers: {
