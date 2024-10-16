@@ -1,25 +1,13 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  TouchableOpacity,
-  Modal,
-  Image,
-  Dimensions,
-  Share, // Importar Share
-} from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, Image } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
 import CertificadoSVG from "../Components/CertificadoSVG";
 import ViewShot from "react-native-view-shot";
-import * as FileSystem from 'expo-file-system'; // Para manipular archivos
-import * as Sharing from 'expo-sharing'; // Para compartir archivos
-
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 type RootStackParamList = {
   Login: undefined;
@@ -60,21 +48,27 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
   const [progressCritico, setProgressCritico] = useState(0);
   const [userNombre, setUserNombre] = useState("");
   const [userApellido, setUserApellido] = useState("");
-  const viewShotRef = React.useRef(null); // Referencia para capturar el certificado
+  const [userCarnet, setUserCarnet] = useState("");
+
+  const viewShotRef = React.useRef(null);
 
   useEffect(() => {
     (async () => {
       const literalProgress = await AsyncStorage.getItem("progressLiteral");
-      const inferencialProgress = await AsyncStorage.getItem("progressInferencial");
+      const inferencialProgress = await AsyncStorage.getItem(
+        "progressInferencial"
+      );
       const criticoProgress = await AsyncStorage.getItem("progressCritico");
       const nombre = await AsyncStorage.getItem("userNombre");
       const apellido = await AsyncStorage.getItem("userApellido");
+      const carnet = await AsyncStorage.getItem("usercarnet");
 
       setProgressLiteral(Number(literalProgress));
       setProgressInferencial(Number(inferencialProgress));
       setProgressCritico(Number(criticoProgress));
       setUserNombre(nombre || "");
       setUserApellido(apellido || "");
+      setUserCarnet(carnet || "");
     })();
   }, []);
 
@@ -98,16 +92,14 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
 
   const handleShare = async () => {
     try {
-      const uri = await viewShotRef.current.capture(); // Capturar la imagen
-      const localUri = `${FileSystem.cacheDirectory}certificate.png`; // Guardar la imagen en el caché
+      const uri = await viewShotRef.current.capture();
+      const localUri = `${FileSystem.cacheDirectory}certificate.png`;
 
-      // Mover la imagen a una ubicación local
       await FileSystem.moveAsync({
         from: uri,
         to: localUri,
       });
 
-      // Compartir la imagen
       await Sharing.shareAsync(localUri);
     } catch (error) {
       alert("Hubo un error al intentar compartir el certificado.");
@@ -152,23 +144,29 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.certificadoContainer}>
-            {/* Envolver el certificado en ViewShot */}
-            <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1.0 }} style={{ margin: 0, padding: 0 }}>
-            <CertificadoSVG
+            <ViewShot
+              ref={viewShotRef}
+              options={{ format: "png", quality: 1.0 }}
+              style={{ marginBottom: 0, padding: 0 }}
+            >
+              <CertificadoSVG
                 nombre={userNombre}
                 apellido={userApellido}
                 nivel={certificadoNivel}
                 fecha={new Date().toLocaleDateString()}
                 logoUrl="https://static.wixstatic.com/media/700331_13536b8cb95a4445a4519949edf76265~mv2.png/v1/fill/w_480,h_478,al_c,q_85,usm_4.00_1.00_0.00,enc_auto/2020_escudo%20colegio%20PA_20%25.png"
                 planetaUrl={getPlanetaUrl(certificadoNivel)}
+                carnet={userCarnet}
               />
             </ViewShot>
           </View>
           <TouchableOpacity
             style={styles.compartirButton}
-            onPress={handleShare} // Botón para compartir
+            onPress={handleShare}
           >
-            <Text style={styles.compartirButtonText}>Compartir Certificado</Text>
+            <Text style={styles.compartirButtonText}>
+              Compartir Certificado
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.compartirButton}
@@ -182,50 +180,52 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
   );
 }
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#673AB7",
-    paddingBottom: 5,
+    paddingBottom: 20,
   },
   content: {
     flex: 1,
-    padding: 10, // Ajuste del padding para que el contenido no se vea tan ajustado
+    padding: 15,
   },
   card: {
-    backgroundColor: "rgba(255, 255, 255, 0.15)", // Ligero ajuste de la opacidad para mejorar la estética
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     borderRadius: 10,
-    padding: 20, // Ajuste del padding para pantallas móviles
+    paddingHorizontal: 60,
+    paddingVertical: 30,
     alignItems: "center",
-    marginBottom: 15, // Ajuste del margin
+    marginBottom: 20,
   },
   planet: {
-    width: 120, // Reducción de tamaño para mejor ajuste en pantallas pequeñas
-    height: 120,
+    width: 155,
+    height: 155,
     marginBottom: 8,
   },
   cardTitle: {
     color: "white",
-    fontSize: 16, // Ajuste de tamaño para mayor claridad
+    fontSize: 18,
     marginVertical: 6,
     textAlign: "center",
+    fontWeight: "bold",
   },
   descripcion: {
     color: "white",
-    textAlign: "center",
-    fontSize: 12, // Ajuste para no ocupar demasiado espacio en pantallas móviles
+    fontSize: 14,
     marginBottom: 10,
+    textAlign: "center",
   },
   button: {
     backgroundColor: "#ffd700",
-    paddingVertical: 5, // Ajuste para hacerlo más compacto
+    paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,
   },
   buttonText: {
     color: "black",
     fontWeight: "bold",
+    fontSize: 14,
   },
   modalContainer: {
     flex: 1,
@@ -234,11 +234,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
   certificadoContainer: {
-    width: "100%",
-    height: "30%", // Ajuste de tamaño para que el modal no ocupe toda la pantalla
-    backgroundColor: "white",
-    borderRadius: 10,
-    padding: 10, // Pequeño padding para que el contenido no esté pegado a los bordes
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 0,
+    padding: 1,
   },
   compartirButton: {
     backgroundColor: "#ffd700",

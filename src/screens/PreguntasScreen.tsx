@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet,
-  Text,
-  Dimensions,
-  TouchableOpacity,
-} from "react-native";
+import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import PreguntasListComponente from "../Components/PreguntasListComponente";
@@ -73,7 +69,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   ) => {
     try {
       let puntajeTotal = 0;
-      const totalPreguntas = datosUsuariosRespuestas.length; // Total de preguntas
+      const totalPreguntas = datosUsuariosRespuestas.length;
       console.log(
         "datos usuario respuestas:" + JSON.stringify(datosUsuariosRespuestas)
       );
@@ -88,12 +84,11 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
             "ID de respuesta no válido para el usuario:",
             respuestaUsuario
           );
-          continue; // Saltar esta iteración si el ID es inválido
+          continue;
         }
 
-        // Fetch para obtener si la respuesta es correcta
         const response = await fetch(
-          `http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.242.6.152:8085/arrupe/sv/arrupe/respuestas`
         );
 
         if (!response.ok) {
@@ -104,16 +99,14 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         const respuestas = await response.json();
         console.log("Respuestas obtenidas del servidor:", respuestas);
 
-        // Buscar la respuesta en la base de datos
         const respuesta = respuestas.find((r: any) => r[0] === idRespuesta);
         console.log(`Respuesta encontrada para id ${idRespuesta}:`, respuesta);
 
         if (respuesta && respuesta[4] === true) {
-          puntajeTotal += 1; // Si es correcta, suma un punto
+          puntajeTotal += 1;
         }
       }
 
-      // Calcular el porcentaje de aciertos
       const porcentajeAciertos = (puntajeTotal / totalPreguntas) * 100;
 
       console.log("Puntaje calculado (en porcentaje):", porcentajeAciertos);
@@ -129,17 +122,13 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     console.log("Datos de respuestas del usuario:", datosUsuariosRespuestas);
 
     try {
-      // Obtener el ID del usuario desde AsyncStorage
       const storedUserId = await AsyncStorage.getItem("userId");
-
-      
 
       if (!storedUserId) {
         console.error("No se encontró el ID del usuario.");
         return;
       }
 
-      // Convertir pruebaId a entero
       const pruebaId = parseInt(route.params?.pruebaId, 10);
 
       if (isNaN(pruebaId)) {
@@ -149,12 +138,11 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
       const userId = parseInt(storedUserId, 10); // Convertir a número
 
-      // Enviar cada respuesta
       for (const respuesta of datosUsuariosRespuestas) {
         console.log("Enviando respuesta:", JSON.stringify(respuesta));
 
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
           {
             method: "POST",
             headers: {
@@ -180,25 +168,18 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         }
       }
 
-      // Calcular puntaje total
       const puntajeTotal = await obtenerRespuestasYCalcularPuntaje(
         datosUsuariosRespuestas
       );
-      console.log("El puntaje total que logo el usuario: " + puntajeTotal);
 
-      // Enviar puntaje y otros detalles al backend
       const datosResultadosPrueba = {
-        prueba: pruebaId, // El ID de la prueba como entero // El ID de la prueba recibido desde la navegación
-        usuario: userId, // El ID del usuario desde AsyncStorage
+        prueba: pruebaId,
+        usuario: userId,
         puntaje: puntajeTotal,
       };
-      console.log(
-        "El json que le estoy enviando a resultados Prueba: " +
-          JSON.stringify(datosResultadosPrueba)
-      );
 
       const responseGuardarResultados = await fetch(
-        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
+        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
         {
           method: "POST",
           headers: {
@@ -213,7 +194,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       } else {
         console.log("Navegando a Resultados con pruebaId:", pruebaId);
         console.log("Resultados de la prueba guardados con éxito.");
-        navigation.navigate("Resultados", { pruebaId: pruebaId }); // Asegúrate de pasar el pruebaId aquí
+        navigation.navigate("Resultados", { pruebaId: pruebaId });
       }
     } catch (error) {
       console.error("Error al guardar las respuestas:", error);

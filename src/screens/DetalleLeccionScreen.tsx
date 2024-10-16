@@ -1,17 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  FlatList,
-  View,
-} from "react-native";
+import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
 import PruebaComponent from "../Components/PruebaComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
+import { useFocusEffect } from "@react-navigation/native";
 
 const formatearFecha = (fechaISO: string) => {
   const fecha = new Date(fechaISO);
@@ -34,32 +28,30 @@ const DetalleLeccionScreen = ({ route }) => {
 
   const handleObtenerPruebaId = (id: number) => {
     setPruebaId(id);
-    console.log("PruebaId obtenido:", id);
   };
 
   const fetchIntentos = async (userId: string) => {
     try {
       const response = await fetch(
-        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
+        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log("Json recibido de los intentos:", data);
 
       const intentosFiltrados = data
         .filter(
           (intento: any[]) =>
             intento[1] === pruebaId && intento[2] === parseInt(userId, 10)
         )
-        .sort((a, b) => new Date(a[5]).getTime() - new Date(b[5]).getTime()) // Ordena antes para obtener el índice correcto
+        .sort((a, b) => new Date(a[5]).getTime() - new Date(b[5]).getTime())
         .map((intento: any[], index: number) => ({
-          id: intento[0], // Usa el ID real
+          id: intento[0],
           fecha: intento[5],
           fechaFormateada: formatearFecha(intento[5]),
           puntuacion: `${intento[4]}% (${(intento[4] / 10).toFixed(2)} / 10)`,
-          indiceConsecutivo: index + 1, // Genera el índice consecutivo para mostrar
+          indiceConsecutivo: index + 1,
         }));
 
       setIntentos(intentosFiltrados);
@@ -89,12 +81,11 @@ const DetalleLeccionScreen = ({ route }) => {
 
       fetchUserId();
 
-      // Limpiar la función
       return () => {
         setUserId(null);
         setIntentos([]);
       };
-    }, [pruebaId]) // Dependiendo de pruebaId
+    }, [pruebaId])
   );
 
   useEffect(() => {

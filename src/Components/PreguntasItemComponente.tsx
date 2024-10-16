@@ -18,7 +18,6 @@ const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
 
   const handleGuardarYContinuar = () => {
     if (opcionSeleccionada) {
-      console.log(`Pregunta ${preguntaId}: Opción seleccionada: ${opcionSeleccionada}`);
       onSelectOpcion(opcionSeleccionada);
       setGuardado(true);
     } else {

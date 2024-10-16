@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
@@ -16,7 +10,7 @@ type IntentoPrueba = {
   fecha: string;
   fechaFormateada: string;
   puntuacion: string;
-  indiceConsecutivo: number; // Agrega el campo aquí
+  indiceConsecutivo: number;
 };
 
 type PruebaComponentProps = {
@@ -45,7 +39,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           setLessonId(parsedLessonId);
 
           const response = await fetch(
-            "http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas"
+            "http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas"
           );
           if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
@@ -59,7 +53,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           if (matchingLesson) {
             const id_leccion_prueba = matchingLesson[0];
             const pruebaResponse = await fetch(
-              `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
+              `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
             );
             if (!pruebaResponse.ok) {
               throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
@@ -86,7 +80,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
     };
 
     fetchLessonPruebaId();
-  }, [onObtenerPruebaId]); // Asegurarnos de que se ejecute si cambia onObtenerPruebaId
+  }, [onObtenerPruebaId]);
 
   const iniciarPrueba = () => {
     if (pruebaId) {
@@ -97,7 +91,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   };
 
   const onMostrarDetalle = (intentoId: number) => {
-    navigation.navigate("ResultadoIntento", { intentoId }); // Pasar intentoId
+    navigation.navigate("ResultadoIntento", { intentoId });
   };
 
   const renderItem = ({ item }: { item: IntentoPrueba }) => (
@@ -107,7 +101,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
       <Text style={styles.cell}>{item.puntuacion}</Text>
       <TouchableOpacity
         style={styles.button}
-        onPress={() => onMostrarDetalle(item.id)} // Usa el ID real para operaciones
+        onPress={() => onMostrarDetalle(item.id)}
       >
         <Text style={styles.buttonText}>Mostrar</Text>
       </TouchableOpacity>
@@ -128,7 +122,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           <Text style={styles.headerText}>Detalles</Text>
         </View>
         <FlatList
-          data={[...intentos].reverse()} // Invierte el orden de los intentos
+          data={[...intentos].reverse()}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />

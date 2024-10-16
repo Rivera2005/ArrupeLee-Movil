@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  ActivityIndicator,
-} from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ResultadoComponente from "../Components/ResultadoComponente";
 import Header from "../Components/Header";
@@ -43,16 +38,10 @@ export default function ResultadosScreen({
   useEffect(() => {
     const fetchResultados = async () => {
       try {
-        // Obtener el ID del usuario de AsyncStorage
         const storedUserId = await AsyncStorage.getItem("userId");
         const storedUserNombre = await AsyncStorage.getItem("userNombre");
         const storedUserApellido = await AsyncStorage.getItem("userApellido");
         const storedLessonId = await AsyncStorage.getItem("lessonId");
-
-        console.log("Stored User ID:", storedUserId);
-        console.log("Stored User Nombre:", storedUserNombre);
-        console.log("Stored User Apellido:", storedUserApellido);
-        console.log("Stored Lesson ID:", storedLessonId);
 
         if (storedUserId) {
           setUserId(storedUserId);
@@ -68,12 +57,9 @@ export default function ResultadosScreen({
         }
 
         const responseResultados = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
         const resultadosData = await responseResultados.json();
-
-        // Log de resultados recibidos
-        console.log("Resultados Data:", resultadosData);
 
         const filteredResultados = resultadosData.filter((resultado: any) => {
           const resultadoUserId = resultado[2];
@@ -96,7 +82,7 @@ export default function ResultadosScreen({
 
           const pruebaId = latestResult[1];
           const responsePrueba = await fetch(
-            `http://192.242.6.93:8085/arrupe/sv/arrupe/prueba`
+            `http://192.242.6.152:8085/arrupe/sv/arrupe/prueba`
           );
           const pruebaData = await responsePrueba.json();
 
