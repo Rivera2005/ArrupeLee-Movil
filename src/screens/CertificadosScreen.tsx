@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,17 +7,19 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  Image
+  Image,
+  Dimensions,
+  Share, // Importar Share
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import * as FileSystem from "expo-file-system";
-import * as Sharing from "expo-sharing";
-import * as MediaLibrary from "expo-media-library";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { captureRef } from "react-native-view-shot";
 import CertificadoSVG from "../Components/CertificadoSVG";
+import ViewShot from "react-native-view-shot";
+import * as FileSystem from 'expo-file-system'; // Para manipular archivos
+import * as Sharing from 'expo-sharing'; // Para compartir archivos
+
 
 type RootStackParamList = {
   Login: undefined;
@@ -58,20 +60,12 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
   const [progressCritico, setProgressCritico] = useState(0);
   const [userNombre, setUserNombre] = useState("");
   const [userApellido, setUserApellido] = useState("");
-
-  const certificadoRef = useRef(null);
+  const viewShotRef = React.useRef(null); // Referencia para capturar el certificado
 
   useEffect(() => {
     (async () => {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        alert("Se requieren permisos para acceder a la galería.");
-      }
-
       const literalProgress = await AsyncStorage.getItem("progressLiteral");
-      const inferencialProgress = await AsyncStorage.getItem(
-        "progressInferencial"
-      );
+      const inferencialProgress = await AsyncStorage.getItem("progressInferencial");
       const criticoProgress = await AsyncStorage.getItem("progressCritico");
       const nombre = await AsyncStorage.getItem("userNombre");
       const apellido = await AsyncStorage.getItem("userApellido");
@@ -89,29 +83,6 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
     setCertificadoVisible(true);
   };
 
-  const handleDescargarCertificado = async () => {
-    try {
-      const uri = await captureRef(certificadoRef, {
-        format: "png",
-        quality: 0.8,
-      });
-
-      const fileName = `certificado_${certificadoNivel.toLowerCase()}.png`;
-      const fileUri = `${FileSystem.documentDirectory}${fileName}`;
-
-      await FileSystem.moveAsync({
-        from: uri,
-        to: fileUri,
-      });
-
-      const asset = await MediaLibrary.createAssetAsync(fileUri);
-      await Sharing.shareAsync(asset.uri);
-    } catch (error) {
-      console.error("Error al descargar el certificado:", error);
-      alert("Ocurrió un error al descargar el certificado.");
-    }
-  };
-
   const getPlanetaUrl = (nivel: string) => {
     switch (nivel) {
       case "LITERAL":
@@ -125,6 +96,24 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const uri = await viewShotRef.current.capture(); // Capturar la imagen
+      const localUri = `${FileSystem.cacheDirectory}certificate.png`; // Guardar la imagen en el caché
+
+      // Mover la imagen a una ubicación local
+      await FileSystem.moveAsync({
+        from: uri,
+        to: localUri,
+      });
+
+      // Compartir la imagen
+      await Sharing.shareAsync(localUri);
+    } catch (error) {
+      alert("Hubo un error al intentar compartir el certificado.");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Header />
@@ -135,11 +124,7 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
             planetImage={require("../../assets/nivelLiteral.png")}
             nivel="LITERAL"
             descripcion="Tras haber completado todas las lecciones del Nivel Literal has obtenido un reconocimiento."
-            onObtenerCertificado={() =>
-              handleObtenerCertificado(
-                require("../../assets/certificadoPrueba.png")
-              )
-            }
+            onObtenerCertificado={() => handleObtenerCertificado("LITERAL")}
           />
         )}
         {progressInferencial === 100 && (
@@ -147,11 +132,7 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
             planetImage={require("../../assets/nivelInferencial.png")}
             nivel="INFERENCIAL"
             descripcion="Tras haber completado todas las lecciones del Nivel Inferencial has obtenido un reconocimiento."
-            onObtenerCertificado={() =>
-              handleObtenerCertificado(
-                require("../../assets/certificadoPrueba.png")
-              )
-            }
+            onObtenerCertificado={() => handleObtenerCertificado("INFERENCIAL")}
           />
         )}
         {progressCritico === 100 && (
@@ -159,22 +140,9 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
             planetImage={require("../../assets/nivelCritico.png")}
             nivel="CRÍTICO"
             descripcion="Tras haber completado todas las lecciones del Nivel Crítico has obtenido un reconocimiento."
-            onObtenerCertificado={() =>
-              handleObtenerCertificado(
-                require("../../assets/certificadoPrueba.png")
-              )
-            }
+            onObtenerCertificado={() => handleObtenerCertificado("CRÍTICO")}
           />
         )}
-        {progressLiteral < 100 &&
-          progressInferencial < 100 &&
-          progressCritico < 100 && (
-            <View style={styles.noCertificatesContainer}>
-              <Text style={styles.noCertificatesText}>
-                Aún no tienes certificados, completa los niveles de lectura.
-              </Text>
-            </View>
-          )}
       </ScrollView>
 
       <Modal
@@ -183,33 +151,38 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
         animationType="fade"
       >
         <View style={styles.modalContainer}>
-          <View ref={certificadoRef} style={styles.certificadoContainer}>
+          <View style={styles.certificadoContainer}>
+            {/* Envolver el certificado en ViewShot */}
+            <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1.0 }} style={{ margin: 0, padding: 0 }}>
             <CertificadoSVG
-              nombre={userNombre}
-              apellido={userApellido}
-              nivel={certificadoNivel}
-              fecha={new Date().toLocaleDateString()}
-              logoUrl="https://static.wixstatic.com/media/700331_13536b8cb95a4445a4519949edf76265~mv2.png/v1/fill/w_480,h_478,al_c,q_85,usm_4.00_1.00_0.00,enc_auto/2020_escudo%20colegio%20PA_20%25.png"
-              planetaUrl={getPlanetaUrl(certificadoNivel)}
-            />
+                nombre={userNombre}
+                apellido={userApellido}
+                nivel={certificadoNivel}
+                fecha={new Date().toLocaleDateString()}
+                logoUrl="https://static.wixstatic.com/media/700331_13536b8cb95a4445a4519949edf76265~mv2.png/v1/fill/w_480,h_478,al_c,q_85,usm_4.00_1.00_0.00,enc_auto/2020_escudo%20colegio%20PA_20%25.png"
+                planetaUrl={getPlanetaUrl(certificadoNivel)}
+              />
+            </ViewShot>
           </View>
           <TouchableOpacity
-            style={styles.downloadButton}
-            onPress={handleDescargarCertificado}
+            style={styles.compartirButton}
+            onPress={handleShare} // Botón para compartir
           >
-            <Text style={styles.downloadButtonText}>Compartir Certificado</Text>
+            <Text style={styles.compartirButtonText}>Compartir Certificado</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.closeButton}
+            style={styles.compartirButton}
             onPress={() => setCertificadoVisible(false)}
           >
-            <Text style={styles.closeButtonText}>Cerrar</Text>
+            <Text style={styles.compartirButtonText}>Cerrar</Text>
           </TouchableOpacity>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
+
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -218,34 +191,36 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 10, // Ajuste del padding para que el contenido no se vea tan ajustado
   },
   card: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.15)", // Ligero ajuste de la opacidad para mejorar la estética
     borderRadius: 10,
-    padding: 35,
+    padding: 20, // Ajuste del padding para pantallas móviles
     alignItems: "center",
-    marginBottom: 30,
+    marginBottom: 15, // Ajuste del margin
   },
   planet: {
-    width: 180,
-    height: 180,
-    marginBottom: 10,
+    width: 120, // Reducción de tamaño para mejor ajuste en pantallas pequeñas
+    height: 120,
+    marginBottom: 8,
   },
   cardTitle: {
     color: "white",
-    fontSize: 16,
-    marginVertical: 10,
+    fontSize: 16, // Ajuste de tamaño para mayor claridad
+    marginVertical: 6,
     textAlign: "center",
   },
   descripcion: {
     color: "white",
     textAlign: "center",
-    marginBottom: 15,
+    fontSize: 12, // Ajuste para no ocupar demasiado espacio en pantallas móviles
+    marginBottom: 10,
   },
   button: {
     backgroundColor: "#ffd700",
-    padding: 10,
+    paddingVertical: 5, // Ajuste para hacerlo más compacto
+    paddingHorizontal: 15,
     borderRadius: 5,
   },
   buttonText: {
@@ -258,43 +233,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
-  certificadoImage: {
-    width: "90%",
-    height: "70%",
+  certificadoContainer: {
+    width: "100%",
+    height: "30%", // Ajuste de tamaño para que el modal no ocupe toda la pantalla
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 10, // Pequeño padding para que el contenido no esté pegado a los bordes
   },
-  downloadButton: {
+  compartirButton: {
     backgroundColor: "#ffd700",
-    padding: 10,
+    padding: 12,
     borderRadius: 5,
-    marginTop: 20,
+    marginTop: 15,
   },
-  downloadButtonText: {
+  compartirButtonText: {
     color: "black",
     fontWeight: "bold",
-  },
-  closeButton: {
-    marginTop: 10,
-    padding: 10,
-  },
-  closeButtonText: {
-    color: "white",
-    fontWeight: "bold",
-  },
-  noCertificatesContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    padding: 20,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  noCertificatesText: {
-    color: "white",
     textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  certificadoContainer: {
-    width: 800,
-    height: 600,
-    backgroundColor: 'white',
   },
 });

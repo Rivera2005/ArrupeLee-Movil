@@ -40,7 +40,7 @@ const DetalleLeccionScreen = ({ route }) => {
   const fetchIntentos = async (userId: string) => {
     try {
       const response = await fetch(
-        "http://192.242.6.93:8085/arrupe/sv/arrupe/resultadosPrueba"
+        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);

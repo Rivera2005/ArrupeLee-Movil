@@ -31,7 +31,7 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
       try {
         // Obtener preguntas
         const response = await fetch(
-          "http://192.242.6.93:8085/arrupe/sv/arrupe/preguntas"
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/preguntas"
         );
         const data = await response.json();
 

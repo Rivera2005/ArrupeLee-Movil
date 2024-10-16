@@ -34,7 +34,7 @@ export default function LoginScreen({ navigation }: Props) {
   const handleLogin = async () => {
     try {
       const response = await fetch(
-        "http://192.242.6.93:8085/arrupe/sv/arrupe/usuarios",
+        "http://192.168.0.15:8085/arrupe/sv/arrupe/usuarios",
         {
           method: "GET",
           headers: {
@@ -56,6 +56,7 @@ export default function LoginScreen({ navigation }: Props) {
 
       if (usuario && usuario[4] === password) {
         await AsyncStorage.setItem("userId", usuario[0].toString());
+        await AsyncStorage.setItem("usercarnet", usuario[1].toString());
         await AsyncStorage.setItem("userNombre", usuario[2]);
         await AsyncStorage.setItem("userApellido", usuario[3]);
         await AsyncStorage.setItem("userCorreo", usuario[13]);
