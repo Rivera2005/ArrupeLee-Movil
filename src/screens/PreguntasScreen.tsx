@@ -78,7 +78,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       const totalPreguntas = datosUsuariosRespuestas.length;
 
       for (const respuestaUsuario of datosUsuariosRespuestas) {
-        // Usar "respuestas" como el ID de la respuesta
         const idRespuesta = respuestaUsuario.respuestas;
 
         if (!idRespuesta) {
@@ -117,6 +116,8 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   };
 
   const handleTerminarEjercicio = async (datosUsuariosRespuestas: any) => {
+    console.log("Terminando ejercicio..."); // Verificar que se llama a esta función
+
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
 
@@ -127,6 +128,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
       const userId = parseInt(storedUserId, 10); // Convertir a número
 
+      // Guarda las respuestas del usuario
       for (const respuesta of datosUsuariosRespuestas) {
         const response = await fetch(
           "http://192.168.0.15:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
@@ -153,6 +155,18 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         datosUsuariosRespuestas
       );
 
+      console.log("Puntaje total:", puntajeTotal); // Verifica el puntaje total calculado
+
+      // Aquí debes llamar a registrarProgresoLeccion si el puntaje total es 60 o más
+      if (puntajeTotal >= 60) {
+        if (leccionId !== null) {
+          await registrarProgresoLeccion(userId, leccionId, 20);
+        } else {
+          console.error("No hay una lección seleccionada");
+          // Podrías también mostrar un mensaje al usuario o manejar este caso de otra manera
+        }
+      }
+
       const datosResultadosPrueba = {
         prueba: pruebaId,
         usuario: userId,
@@ -177,6 +191,45 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       }
     } catch (error) {
       console.error("Error al guardar las respuestas:", error);
+    }
+  };
+
+  const registrarProgresoLeccion = async (
+    userId: number,
+    leccionId: number,
+    porcentajeCompletado: number
+  ) => {
+    const fechaActual = new Date().toISOString().slice(0, 19).replace("T", " ");
+    console.log("leccionId de preguntasscreen: " + leccionId);
+    const datosProgreso = {
+      usuario: userId,
+      leccion: leccionId,
+      porcentajeCompletado: porcentajeCompletado,
+      fecha: fechaActual,
+    };
+
+    console.log("Enviando datos de progreso:", datosProgreso); // Agregar console.log para verificar
+
+    try {
+      const response = await fetch(
+        "http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(datosProgreso),
+        }
+      );
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        console.error("Error al enviar progreso:", errorResponse);
+      } else {
+        console.log("Progreso guardado exitosamente");
+      }
+    } catch (error) {
+      console.error("Error al enviar la solicitud de progreso:", error);
     }
   };
 

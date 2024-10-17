@@ -1,14 +1,30 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, ScrollView, Dimensions, ActivityIndicator, TouchableOpacity, SafeAreaView, Modal, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+  TouchableOpacity,
+  SafeAreaView,
+  Modal,
+  TouchableWithoutFeedback,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 type LeccionDetailProps = {
   lessonId: number;
+  hasPrueba: boolean;
 };
 
-const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
+const LeccionDetail: React.FC<LeccionDetailProps> = ({
+  lessonId,
+  hasPrueba,
+}) => {
   const [lessonDetail, setLessonDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -79,6 +95,10 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({ lessonId }) => {
 
     const totalImages = images.length;
     let porcentajeCompletado = ((index + 1) / totalImages) * 100;
+
+    if (hasPrueba) {
+      porcentajeCompletado = Math.min(porcentajeCompletado, 80);
+    }
 
     if (porcentajeCompletado > maxPorcentajeCompletado) {
       setMaxPorcentajeCompletado(porcentajeCompletado);

@@ -21,12 +21,14 @@ type IntentoPrueba = {
 type PruebaComponentProps = {
   intentos: IntentoPrueba[]; // Lista de intentos recibidos desde DetalleLeccionScreen
   pruebaId: number | null; // Ahora recibimos el pruebaId como prop
+  lessonId: number | null;
   formatearFecha: (fecha: string) => string;
 };
 
 const PruebaComponent: React.FC<PruebaComponentProps> = ({
   intentos,
   pruebaId,
+  lessonId,
   formatearFecha,
 }) => {
   const navigation =
@@ -34,7 +36,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
 
   const iniciarPrueba = () => {
     if (pruebaId) {
-      navigation.navigate("Preguntas", { pruebaId: pruebaId });
+      navigation.navigate("Preguntas", { pruebaId: pruebaId, lessonId: lessonId });
     } else {
       console.warn("El id de la prueba no está disponible.");
     }

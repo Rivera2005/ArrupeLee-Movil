@@ -12,6 +12,7 @@ import NavigationBar from "../Components/NavigationBar";
 import PruebaComponent from "../Components/PruebaComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+import LessonList from "../Components/LessonList";
 
 const formatearFecha = (fechaISO: string) => {
   const fecha = new Date(fechaISO);
@@ -31,6 +32,11 @@ const DetalleLeccionScreen = ({ route }) => {
   const [intentos, setIntentos] = useState([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [pruebaId, setPruebaId] = useState<number | null>(null);
+
+  const lessonIdGuardar = async () => {
+  await AsyncStorage.setItem("currentLeccionId", lessonId);
+  }
+
 
   const fetchIntentos = async (userId: string, pruebaId: number) => {
     try {
@@ -64,6 +70,7 @@ const DetalleLeccionScreen = ({ route }) => {
 
   const fetchPruebaId = async (lessonId: number) => {
     try {
+      
       const response = await fetch(
         `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas`
       );
@@ -74,7 +81,7 @@ const DetalleLeccionScreen = ({ route }) => {
       const matchingLesson = data.find((lesson) => {
         return lesson[1] == lessonId;
       });
-      
+
       if (matchingLesson) {
         const id_leccion_prueba = matchingLesson[0];
         const pruebaResponse = await fetch(
@@ -130,16 +137,16 @@ const DetalleLeccionScreen = ({ route }) => {
     if (item.type === "detail") {
       return (
         <View style={styles.sectionContainer}>
-          <LeccionDetail lessonId={lessonId} />
+          <LeccionDetail lessonId={lessonId} hasPrueba={pruebaId !== null} />
         </View>
       );
     } else if (item.type === "prueba" && pruebaId !== null) {
-      // Solo muestra el componente PruebaComponent si existe un pruebaId
       return (
         <View style={styles.sectionContainer}>
           <PruebaComponent
             intentos={item.data}
-            pruebaId={pruebaId} // Pasamos el pruebaId aquí
+            pruebaId={pruebaId}
+            lessonId={lessonId}
             formatearFecha={formatearFecha}
           />
         </View>
@@ -147,7 +154,6 @@ const DetalleLeccionScreen = ({ route }) => {
     }
     return null;
   };
-
   const data = [{ type: "detail" }, { type: "prueba", data: intentos }];
 
   return (
