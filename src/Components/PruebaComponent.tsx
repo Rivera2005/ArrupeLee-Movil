@@ -1,8 +1,16 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import CustomAlert from "./CustomAlert"; // Importa tu componente CustomAlert
 
 type IntentoPrueba = {
   id: number;
@@ -28,14 +36,70 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-    const iniciarPrueba = () => {
-      if (pruebaId && lessonId) {
-        navigation.navigate("Preguntas", { pruebaId: pruebaId, leccionId: lessonId });
-      } else {
-        console.warn("El id de la prueba o el id de la lección no está disponible.");
+  const [progreso, setProgreso] = useState<number | null>(null); // Estado para almacenar el progreso del usuario
+  const [showAlert, setShowAlert] = useState(false); // Estado para controlar si mostramos el CustomAlert
+  const [alertMessage, setAlertMessage] = useState(""); // Estado para el mensaje del CustomAlert
+
+  useEffect(() => {
+    const obtenerProgreso = async () => {
+      const storedUserId = await AsyncStorage.getItem("userId");
+      console.log("USERID EN PRUEBACOMPOENTE: " + storedUserId);
+      console.log("lessonId EN PRUEBACOMPOENTE: " + lessonId);
+
+      if (storedUserId) {
+        const userId = Number(storedUserId); // No es necesario convertir a entero ya que usaremos como string
+
+        // Aquí se hace la petición para obtener el progreso del usuario
+        const response = await fetch(
+          `http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante`
+        );
+
+        if (response.ok) {
+          const data: Array<[number, number, string, number, number]> =
+            await response.json();
+          console.log("Datos de progreso del servidor:", data); // Aquí se imprime la respuesta
+
+          // Filtramos los datos para encontrar el progreso del usuario en la lección actual
+          const usuarioProgreso = data.find(
+            (item) => item[1] === userId && item[3] === lessonId
+          );
+          console.log("usuario progreso: " + usuarioProgreso);
+
+          if (usuarioProgreso) {
+            setProgreso(usuarioProgreso[4]); // Suponemos que el progreso está en la posición 4 del array
+          } else {
+            console.log(
+              "No se encontró progreso para el usuario en la lección especificada."
+            );
+          }
+        } else {
+          console.error("Error al obtener el progreso del usuario.");
+        }
       }
     };
-    
+
+    obtenerProgreso();
+  }, [lessonId]); // Agregar lessonId como dependencia para que se vuelva a ejecutar si cambia
+
+  const iniciarPrueba = () => {
+    if (progreso !== null && progreso >= 75) {
+      if (pruebaId && lessonId) {
+        navigation.navigate("Preguntas", {
+          pruebaId: pruebaId,
+          leccionId: lessonId,
+        });
+      } else {
+        console.warn(
+          "El id de la prueba o el id de la lección no está disponible."
+        );
+      }
+    } else {
+      setAlertMessage(
+        "Antes de iniciar la prueba, por favor lea la lección completa."
+      );
+      setShowAlert(true); // Mostramos la alerta
+    }
+  };
 
   const onMostrarDetalle = (intentoId: number) => {
     navigation.navigate("ResultadoIntento", { intentoId });
@@ -56,7 +120,17 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   );
 
   return (
+    <>
+    {showAlert && (
+      <CustomAlert
+        message={alertMessage}
+        onDismiss={() => setShowAlert(false)}
+      />
+    )}
+
     <View style={styles.container}>
+      {/* Mover CustomAlert aquí para asegurarse de que se ve en la pantalla */}
+    
       <Text style={styles.title}>Prueba de Conocimientos</Text>
       <TouchableOpacity style={styles.iniciarButton} onPress={iniciarPrueba}>
         <Text style={styles.iniciarButtonText}>INICIAR LA PRUEBA</Text>
@@ -69,12 +143,13 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           <Text style={styles.headerText}>Detalles</Text>
         </View>
         <FlatList
-          data={[...intentos].reverse()} // Mostrar los intentos en orden inverso
+          data={[...intentos].reverse()}
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />
       </View>
     </View>
+    </>
   );
 };
 

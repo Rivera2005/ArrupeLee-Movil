@@ -68,6 +68,8 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     );
   }
 
+  
+
   const obtenerRespuestasYCalcularPuntaje = async (
     datosUsuariosRespuestas: any
   ) => {

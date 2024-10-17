@@ -12,7 +12,7 @@ const CustomAlert: React.FC<Props> = ({ message, onDismiss }) => {
     useEffect(() => {
         Animated.timing(opacity, {
             toValue: 0,
-            duration: 2000,
+            duration: 4000,
             useNativeDriver: true,
         }).start(() => {
             onDismiss();
