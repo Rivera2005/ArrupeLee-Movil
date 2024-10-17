@@ -11,14 +11,20 @@ type Opcion = {
   texto: string;
 };
 
+const shuffleArray = (array: Opcion[]): Opcion[] => {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
+};
+
 const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
   preguntaId,
   onSelectOpcion,
 }) => {
   const [opciones, setOpciones] = useState<Opcion[]>([]);
-  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(
-    null
-  );
+  const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +32,7 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
     const fetchOpciones = async () => {
       try {
         const response = await fetch(
-          `http://192.242.6.152:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`
         );
         const data = await response.json();
         const respuestasFiltradas = data.filter(
@@ -38,7 +44,9 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
             texto: respuesta[1],
           })
         );
-        setOpciones(opcionesMapeadas);
+
+        const opcionesBarajadas = shuffleArray(opcionesMapeadas);
+        setOpciones(opcionesBarajadas);
       } catch (error) {
         setError("Error al cargar las opciones.");
         console.error(error);
@@ -70,8 +78,7 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
           key={opcion.id}
           style={[
             styles.opcionButton,
-            opcion.texto === opcionSeleccionada &&
-              styles.opcionButtonSeleccionada,
+            opcion.texto === opcionSeleccionada && styles.opcionButtonSeleccionada,
           ]}
           onPress={() => handleSelectOpcion(opcion)}
         >
@@ -84,8 +91,7 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
           <Text
             style={[
               styles.opcionText,
-              opcion.texto === opcionSeleccionada &&
-                styles.opcionTextSeleccionada,
+              opcion.texto === opcionSeleccionada && styles.opcionTextSeleccionada,
             ]}
           >
             {opcion.texto}

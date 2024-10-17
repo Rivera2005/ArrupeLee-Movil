@@ -9,7 +9,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type RootStackParamList = {
   Home: undefined;
   Resultados: { pruebaId: number };
-  DetalleLecciones: { lessonId: string };
+  DetalleLecciones: { lessonId: number };
 };
 
 type ResultadosScreenProps = {
@@ -31,7 +31,7 @@ export default function ResultadosScreen({
   const [userId, setUserId] = useState("");
   const [userNombre, setUserNombre] = useState("");
   const [userApellido, setUserApellido] = useState("");
-  const [lessonId, setLessonId] = useState<string | null>(null);
+  const [lessonId, setLessonId] = useState<number | null>(null);
 
   const pruebaId = route.params.pruebaId;
 
@@ -53,11 +53,11 @@ export default function ResultadosScreen({
           setUserApellido(storedUserApellido);
         }
         if (storedLessonId) {
-          setLessonId(storedLessonId);
+          setLessonId(Number(storedLessonId));
         }
 
         const responseResultados = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
         const resultadosData = await responseResultados.json();
 
@@ -82,7 +82,7 @@ export default function ResultadosScreen({
 
           const pruebaId = latestResult[1];
           const responsePrueba = await fetch(
-            `http://192.242.6.152:8085/arrupe/sv/arrupe/prueba`
+            `http://192.168.0.15:8085/arrupe/sv/arrupe/prueba`
           );
           const pruebaData = await responsePrueba.json();
 

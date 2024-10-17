@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  FlatList,
+  View,
+} from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
@@ -26,14 +32,10 @@ const DetalleLeccionScreen = ({ route }) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [pruebaId, setPruebaId] = useState<number | null>(null);
 
-  const handleObtenerPruebaId = (id: number) => {
-    setPruebaId(id);
-  };
-
-  const fetchIntentos = async (userId: string) => {
+  const fetchIntentos = async (userId: string, pruebaId: number) => {
     try {
       const response = await fetch(
-        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
+        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -60,39 +62,69 @@ const DetalleLeccionScreen = ({ route }) => {
     }
   };
 
+  const fetchPruebaId = async (lessonId: number) => {
+    try {
+      const response = await fetch(
+        `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      const matchingLesson = data.find((lesson) => {
+        return lesson[1] == lessonId;
+      });
+      
+      if (matchingLesson) {
+        const id_leccion_prueba = matchingLesson[0];
+        const pruebaResponse = await fetch(
+          `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
+        );
+        if (!pruebaResponse.ok) {
+          throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
+        }
+        const pruebaData = await pruebaResponse.json();
+        return pruebaData[0][3];
+      } else {
+        console.log("No se encontró una prueba asociada con la lección.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error al obtener el pruebaId:", error);
+      return null;
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
-      const fetchUserId = async () => {
+      const fetchUserAndPruebaId = async () => {
         try {
           const storedUserId = await AsyncStorage.getItem("userId");
           if (storedUserId) {
             setUserId(storedUserId);
-            // Llamar a fetchIntentos después de establecer userId
+
+            const pruebaId = await fetchPruebaId(lessonId);
             if (pruebaId) {
-              await fetchIntentos(storedUserId);
+              setPruebaId(pruebaId);
+              await fetchIntentos(storedUserId, pruebaId);
             }
           } else {
             console.error("No se encontró el userId en AsyncStorage.");
           }
         } catch (error) {
-          console.error("Error al obtener userId:", error);
+          console.error("Error al obtener userId y pruebaId:", error);
         }
       };
 
-      fetchUserId();
+      fetchUserAndPruebaId();
 
       return () => {
         setUserId(null);
+        setPruebaId(null);
         setIntentos([]);
       };
-    }, [pruebaId])
+    }, [lessonId])
   );
-
-  useEffect(() => {
-    if (pruebaId && userId) {
-      fetchIntentos(userId);
-    }
-  }, [pruebaId, userId]);
 
   const renderItem = ({ item }: { item: any }) => {
     if (item.type === "detail") {
@@ -101,16 +133,13 @@ const DetalleLeccionScreen = ({ route }) => {
           <LeccionDetail lessonId={lessonId} />
         </View>
       );
-    } else if (item.type === "prueba") {
+    } else if (item.type === "prueba" && pruebaId !== null) {
+      // Solo muestra el componente PruebaComponent si existe un pruebaId
       return (
         <View style={styles.sectionContainer}>
           <PruebaComponent
             intentos={item.data}
-            onObtenerPruebaId={handleObtenerPruebaId}
-            onIniciarPrueba={() => console.log("Iniciar prueba")}
-            onMostrarDetalles={(id) =>
-              console.log("Mostrar detalles del intento", id)
-            }
+            pruebaId={pruebaId} // Pasamos el pruebaId aquí
             formatearFecha={formatearFecha}
           />
         </View>

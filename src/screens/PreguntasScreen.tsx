@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, Text, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  StyleSheet,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import PreguntasListComponente from "../Components/PreguntasListComponente";
@@ -11,7 +17,7 @@ type RootStackParamList = {
   Login: undefined;
   Home: undefined;
   Resultados: { pruebaId: number };
-  Preguntas: { leccionId: string; pruebaId: string };
+  Preguntas: { leccionId: number; pruebaId: number };
 };
 
 type PreguntasScreenRouteProp = RouteProp<RootStackParamList, "Preguntas">;
@@ -25,10 +31,10 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const [leccionId, setLeccionId] = useState<string | null>(null);
-  const [pruebaId, setPruebaId] = useState<string | null>(null);
+  const [leccionId, setLeccionId] = useState<number | null>(null);
+  const [pruebaId, setPruebaId] = useState<number | null>(null);
 
-  useEffect(() => {    
+  useEffect(() => {
     const getLeccionId = async () => {
       try {
         if (route.params?.leccionId) {
@@ -38,7 +44,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
             "currentLeccionId"
           );
           if (storedLeccionId) {
-            setLeccionId(storedLeccionId);
+            setLeccionId(parseInt(storedLeccionId, 10)); // Convierte a entero
           }
         }
       } catch (error) {
@@ -70,14 +76,10 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     try {
       let puntajeTotal = 0;
       const totalPreguntas = datosUsuariosRespuestas.length;
-      console.log(
-        "datos usuario respuestas:" + JSON.stringify(datosUsuariosRespuestas)
-      );
 
       for (const respuestaUsuario of datosUsuariosRespuestas) {
         // Usar "respuestas" como el ID de la respuesta
         const idRespuesta = respuestaUsuario.respuestas;
-        console.log("ID RESPUESTA: " + idRespuesta);
 
         if (!idRespuesta) {
           console.error(
@@ -88,7 +90,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         }
 
         const response = await fetch(
-          `http://192.242.6.152:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`
         );
 
         if (!response.ok) {
@@ -97,10 +99,8 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         }
 
         const respuestas = await response.json();
-        console.log("Respuestas obtenidas del servidor:", respuestas);
 
         const respuesta = respuestas.find((r: any) => r[0] === idRespuesta);
-        console.log(`Respuesta encontrada para id ${idRespuesta}:`, respuesta);
 
         if (respuesta && respuesta[4] === true) {
           puntajeTotal += 1;
@@ -109,7 +109,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
       const porcentajeAciertos = (puntajeTotal / totalPreguntas) * 100;
 
-      console.log("Puntaje calculado (en porcentaje):", porcentajeAciertos);
       return porcentajeAciertos;
     } catch (error) {
       console.error("Error al calcular el puntaje:", error);
@@ -118,9 +117,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   };
 
   const handleTerminarEjercicio = async (datosUsuariosRespuestas: any) => {
-    console.log("Ejercicio terminado");
-    console.log("Datos de respuestas del usuario:", datosUsuariosRespuestas);
-
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
 
@@ -129,20 +125,11 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         return;
       }
 
-      const pruebaId = parseInt(route.params?.pruebaId, 10);
-
-      if (isNaN(pruebaId)) {
-        console.error("El ID de la prueba no es válido.");
-        return;
-      }
-
       const userId = parseInt(storedUserId, 10); // Convertir a número
 
       for (const respuesta of datosUsuariosRespuestas) {
-        console.log("Enviando respuesta:", JSON.stringify(respuesta));
-
         const response = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
           {
             method: "POST",
             headers: {
@@ -159,12 +146,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
             response.status,
             errorResponse
           );
-        } else {
-          const data = await response.json();
-          console.log(
-            `Respuesta ${respuesta.preguntas} guardada con éxito`,
-            data
-          );
         }
       }
 
@@ -179,7 +160,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       };
 
       const responseGuardarResultados = await fetch(
-        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
+        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
         {
           method: "POST",
           headers: {
@@ -192,8 +173,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       if (!responseGuardarResultados.ok) {
         console.error("Error al guardar los resultados de la prueba.");
       } else {
-        console.log("Navegando a Resultados con pruebaId:", pruebaId);
-        console.log("Resultados de la prueba guardados con éxito.");
         navigation.navigate("Resultados", { pruebaId: pruebaId });
       }
     } catch (error) {

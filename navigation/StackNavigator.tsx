@@ -22,7 +22,7 @@ export type RootStackParamList = {
   Lecciones: { level: string };
   DetalleLecciones: { id: string };
   BitacoraVuelo: undefined;
-  Preguntas: { pruebaId: string };
+  Preguntas: { pruebaId: number };
   Resultados: { pruebaId: number };
   ResultadoIntento: { intentoId: number };
   Certificados: undefined;

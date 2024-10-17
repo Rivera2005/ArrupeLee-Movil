@@ -6,11 +6,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 type Pregunta = {
   id: string;
   pregunta: string;
-  pruebaId: string;
+  pruebaId: number;
 };
 
 type PreguntasListComponenteProps = {
-  pruebaId: string;
+  pruebaId: number;
   renderFooter: (datosUsuariosRespuestas: any) => React.ReactElement;
   onTerminarEjercicio: (datosUsuariosRespuestas: any) => void;
 };
@@ -30,12 +30,12 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
     const fetchPreguntas = async () => {
       try {
         const response = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/preguntas"
+          "http://192.168.0.15:8085/arrupe/sv/arrupe/preguntas"
         );
         const data = await response.json();
 
         const preguntasFiltradas = data.filter((pregunta: any[]) => {
-          return pregunta[3].toString() === pruebaId;
+          return pregunta[3] === pruebaId;
         });
 
         const preguntasMapeadas = preguntasFiltradas.map((pregunta: any[]) => ({
@@ -69,7 +69,7 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
   };
 
   const datosUsuariosRespuestas = preguntas.map((pregunta) => ({
-    prueba: parseInt(pruebaId),
+    prueba: pruebaId,
     preguntas: parseInt(pregunta.id),
     respuestas: selecciones[pregunta.id] ? parseInt(selecciones[pregunta.id]) : null,
     Usuario: usuarioId ? parseInt(usuarioId) : null,

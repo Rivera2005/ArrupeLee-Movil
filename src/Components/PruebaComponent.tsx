@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type IntentoPrueba = {
   id: number;
@@ -14,77 +19,22 @@ type IntentoPrueba = {
 };
 
 type PruebaComponentProps = {
-  intentos: IntentoPrueba[];
-  onMostrarDetalles: (id: number) => void;
-  onObtenerPruebaId: (id: number) => void;
+  intentos: IntentoPrueba[]; // Lista de intentos recibidos desde DetalleLeccionScreen
+  pruebaId: number | null; // Ahora recibimos el pruebaId como prop
   formatearFecha: (fecha: string) => string;
 };
 
 const PruebaComponent: React.FC<PruebaComponentProps> = ({
   intentos,
-  onObtenerPruebaId,
+  pruebaId,
   formatearFecha,
 }) => {
-  const [pruebaId, setPruebaId] = useState<number | null>(null);
-  const [lessonId, setLessonId] = useState<number | null>(null);
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  useEffect(() => {
-    const fetchLessonPruebaId = async () => {
-      try {
-        const storedLessonId = await AsyncStorage.getItem("lessonId");
-        if (storedLessonId) {
-          const parsedLessonId = parseInt(storedLessonId, 10);
-          setLessonId(parsedLessonId);
-
-          const response = await fetch(
-            "http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas"
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-
-          const data = await response.json();
-          const matchingLesson = data.find(
-            (lesson: any[]) => lesson[1] === parsedLessonId
-          );
-
-          if (matchingLesson) {
-            const id_leccion_prueba = matchingLesson[0];
-            const pruebaResponse = await fetch(
-              `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
-            );
-            if (!pruebaResponse.ok) {
-              throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
-            }
-
-            const pruebaData = await pruebaResponse.json();
-            const obtainedPruebaId = pruebaData[0][3];
-            setPruebaId(obtainedPruebaId);
-
-            if (onObtenerPruebaId && obtainedPruebaId) {
-              onObtenerPruebaId(obtainedPruebaId);
-            }
-          }
-        } else {
-          console.error("No se encontró el lessonId en AsyncStorage.");
-        }
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          console.error("Error al obtener el id de la prueba:", error.message);
-        } else {
-          console.error("Error desconocido:", error);
-        }
-      }
-    };
-
-    fetchLessonPruebaId();
-  }, [onObtenerPruebaId]);
-
   const iniciarPrueba = () => {
     if (pruebaId) {
-      navigation.navigate("Preguntas", { pruebaId: pruebaId.toString() });
+      navigation.navigate("Preguntas", { pruebaId: pruebaId });
     } else {
       console.warn("El id de la prueba no está disponible.");
     }
@@ -122,7 +72,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
           <Text style={styles.headerText}>Detalles</Text>
         </View>
         <FlatList
-          data={[...intentos].reverse()}
+          data={[...intentos].reverse()} // Mostrar los intentos en orden inverso
           renderItem={renderItem}
           keyExtractor={(item) => item.id.toString()}
         />

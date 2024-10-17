@@ -57,15 +57,22 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
       <Text
         fill="white"
         fontSize="14"
-        x="15"
+        x="10"
         y="95"
         fontWeight="bold"
+        fontFamily="Georgia, serif"
       >
         Certificado de Finalización
       </Text>
 
       {/* Descripción */}
-      <Text fill="white" fontSize="10" x="15" y="115">
+      <Text
+        fill="white"
+        fontSize="10"
+        x="10"
+        y="115"
+        fontFamily="Georgia, serif"
+      >
         Por este medio Arrupe Lee certifica que el estudiante:
       </Text>
 
@@ -73,35 +80,54 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
       <Text
         fill="white"
         fontSize="15"
-        x="14"
+        x="10"
         y="138"
         fontWeight="bold"
+        fontFamily="Georgia, serif"
       >
         {`${nombre} ${apellido}`}
       </Text>
 
       {/* Carné del Estudiante */}
-      <Text fill="white" fontSize="10" x="14" y="158">
+      <Text
+        fill="white"
+        fontSize="10"
+        x="10"
+        y="158"
+        fontFamily="Georgia, serif"
+      >
         Con número de carné: {carnet} {/* Usar el carné dinámico */}
       </Text>
 
       {/* Imagen del Planeta */}
       <Image
-        x="245"
-        y="64"
-        width="120"
-        height="120"
+        x="250"
+        y="60"
+        width="110"
+        height="110"
         href={planetaUrl}
         preserveAspectRatio="xMidYMid slice"
       />
 
       {/* Descripción del Nivel */}
-      <Text fill="white" fontSize="10" x="14" y="178">
+      <Text
+        fill="white"
+        fontSize="10"
+        x="10"
+        y="178"
+        fontFamily="Georgia, serif"
+      >
         Ha completado satisfactoriamente el Nivel {nivel}
       </Text>
 
       {/* Fecha */}
-      <Text fill="white" fontSize="10" x="10" y="216">
+      <Text
+        fill="white"
+        fontSize="10"
+        x="10"
+        y="216"
+        fontFamily="Georgia, serif"
+      >
         Fecha: {fecha}
       </Text>
     </Svg>

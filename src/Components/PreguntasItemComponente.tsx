@@ -69,7 +69,9 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 15,
     borderRadius: 5,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
   continuarButtonText: {
     color: 'white',
