@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CustomAlert from "../Components/CustomAlert";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -54,23 +61,39 @@ export default function LoginScreen({ navigation }: Props) {
 
       const usuario = data.find((user: any) => user[1] === carnet);
 
-      if (usuario && usuario[4] === password) {
-        await AsyncStorage.setItem("userId", usuario[0].toString());
-        await AsyncStorage.setItem("usercarnet", usuario[1].toString());
-        await AsyncStorage.setItem("userNombre", usuario[2]);
-        await AsyncStorage.setItem("userApellido", usuario[3]);
-        await AsyncStorage.setItem("userCorreo", usuario[13]);
-        await AsyncStorage.setItem("userNivelEducativo", usuario[12]);
+      if (usuario) {
+        console.log(usuario[15]);
 
-        setAlertMessage("Inicio de sesión exitoso");
-        setShowAlert(true);
+        // Comprobar si el usuario está habilitado
+        if (usuario[15] === "HABILITADO") {
+          // Si el usuario está habilitado, comprobar la contraseña
+          if (usuario[4] === password) {
+            // Inicio de sesión exitoso
+            await AsyncStorage.setItem("userId", usuario[0].toString());
+            await AsyncStorage.setItem("usercarnet", usuario[1].toString());
+            await AsyncStorage.setItem("userNombre", usuario[2]);
+            await AsyncStorage.setItem("userApellido", usuario[3]);
+            await AsyncStorage.setItem("userCorreo", usuario[13]);
+            await AsyncStorage.setItem("userNivelEducativo", usuario[12]);
 
-        setTimeout(() => {
-          setShowAlert(false);
-          navigation.navigate("Home");
-        }, 1000);
+            setAlertMessage("Inicio de sesión exitoso");
+            setShowAlert(true);
+
+            setTimeout(() => {
+              setShowAlert(false);
+              navigation.navigate("Home");
+            }, 1000);
+          } else {
+            // La contraseña es incorrecta
+            setError("Contraseña incorrecta");
+          }
+        } else {
+          // El usuario no está habilitado
+          setError("Usuario deshabilitado");
+        }
       } else {
-        setError("Credenciales inválidas");
+        // No se encontró ningún usuario con ese carné
+        setError("Usuario no encontrado");
       }
     } catch (err: unknown) {
       if (err instanceof Error) {

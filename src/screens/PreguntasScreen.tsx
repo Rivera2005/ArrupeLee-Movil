@@ -12,6 +12,7 @@ import PreguntasListComponente from "../Components/PreguntasListComponente";
 import Header from "../Components/Header";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
+import CustomAlert from "../Components/CustomAlert"; // Importa tu CustomAlert
 
 type RootStackParamList = {
   Login: undefined;
@@ -33,6 +34,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
   const [leccionId, setLeccionId] = useState<number | null>(null);
   const [pruebaId, setPruebaId] = useState<number | null>(null);
+  const [showAlert, setShowAlert] = useState(false); // Estado para controlar la alerta
 
   useEffect(() => {
     const getLeccionId = async () => {
@@ -40,7 +42,9 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         if (route.params?.leccionId) {
           setLeccionId(route.params.leccionId);
         } else {
-          const storedLeccionId = await AsyncStorage.getItem("currentLeccionId");
+          const storedLeccionId = await AsyncStorage.getItem(
+            "currentLeccionId"
+          );
           if (storedLeccionId) {
             setLeccionId(parseInt(storedLeccionId, 10)); // Convierte a entero
           }
@@ -49,7 +53,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         console.error("Error al obtener el ID de la lección:", error);
       }
     };
-  
+
     const getPruebaId = async () => {
       if (route.params?.pruebaId) {
         setPruebaId(route.params.pruebaId);
@@ -57,18 +61,16 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         console.warn("No se recibió pruebaId desde los parámetros.");
       }
     };
-  
+
     getLeccionId();
     getPruebaId();
   }, [route.params?.leccionId, route.params?.pruebaId]);
-  
+
   if (!pruebaId) {
     return (
       <Text style={styles.errorText}>No se ha seleccionado una prueba.</Text>
     );
   }
-
-  
 
   const obtenerRespuestasYCalcularPuntaje = async (
     datosUsuariosRespuestas: any
@@ -128,7 +130,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
       // Guarda las respuestas del usuario
       for (const respuesta of datosUsuariosRespuestas) {
-
         const response = await fetch(
           "http://192.242.6.152:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
           {
@@ -183,7 +184,12 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       if (!responseGuardarResultados.ok) {
         console.error("Error al guardar los resultados de la prueba.");
       } else {
-        navigation.navigate("Resultados", { pruebaId: pruebaId });
+        // Muestra la alerta al finalizar exitosamente
+        setShowAlert(true);
+        // Espera 4 segundos antes de navegar a "Resultados"
+        setTimeout(() => {
+          navigation.navigate("Resultados", { pruebaId: pruebaId });
+        }, 3500);
       }
     } catch (error) {
       console.error("Error al guardar las respuestas:", error);
@@ -240,6 +246,13 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
             </TouchableOpacity>
           )}
         />
+
+        {showAlert && (
+          <CustomAlert
+            message="Guardado exitosamente"
+            onDismiss={() => setShowAlert(false)} // Oculta la alerta después de 4 segundos
+          />
+        )}
       </View>
     </SafeAreaView>
   );
