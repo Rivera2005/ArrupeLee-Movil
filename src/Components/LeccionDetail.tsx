@@ -19,26 +19,32 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 type LeccionDetailProps = {
   lessonId: number;
   hasPrueba: boolean;
+  onLastImageReached: () => void;  // Nueva prop
 };
 
 const LeccionDetail: React.FC<LeccionDetailProps> = ({
   lessonId,
   hasPrueba,
+  onLastImageReached,  // Recibe la nueva prop
 }) => {
   const [lessonDetail, setLessonDetail] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const [userId, setUserId] = useState<string | null>(null);
-  const [lastReportedIndex, setLastReportedIndex] = useState<number | null>(
-    null
-  );
-  const [maxPorcentajeCompletado, setMaxPorcentajeCompletado] =
-    useState<number>(0);
+  const [lastReportedIndex, setLastReportedIndex] = useState<number | null>(null);
+  const [maxPorcentajeCompletado, setMaxPorcentajeCompletado] = useState<number>(0);
   const [images, setImages] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // Usado para forzar re-renderización
+  const [forceUpdateValue, setForceUpdateValue] = useState(0);
+
+  // Fuerza la re-renderización
+  const forceUpdate = () => {
+    setForceUpdateValue(forceUpdateValue + 1);
+  };
 
   useEffect(() => {
     const fetchLessonDetail = async () => {
@@ -137,7 +143,9 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
         if (!response.ok) {
           console.error(`Error ${response.status}: ${response.statusText}`);
         } else {
-          console.log(`Progreso del usuario ${userId} registrado con éxito.`);
+          console.log(
+            `Progreso del usuario ${userId} registrado con éxito. Progreso: ${porcentajeCompletado}%`
+          );
         }
       } catch (error: any) {
         console.error("Error al actualizar el progreso:", error.message);
@@ -156,6 +164,11 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
       setLastReportedIndex(index);
 
       await registrarProgreso(index);
+
+      // Llama la función cuando llegues a la última imagen
+      if (index === images.length - 1) {
+        onLastImageReached();  // Se notifica a DetalleLeccionScreen
+      }
     }
   };
 
@@ -178,7 +191,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} key={forceUpdateValue}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>{lessonDetail[1]}</Text>

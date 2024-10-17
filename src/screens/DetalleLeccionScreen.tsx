@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native";
+import {
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  FlatList,
+  View,
+} from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
@@ -25,11 +31,12 @@ const DetalleLeccionScreen = ({ route }) => {
   const [intentos, setIntentos] = useState([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [pruebaId, setPruebaId] = useState<number | null>(null);
+  const [forceRender, setForceRender] = useState(false);
+  const [lastImageReached, setLastImageReached] = useState(false); // Nuevo estado para controlar si se alcanzó la última imagen
 
   const lessonIdGuardar = async () => {
-  await AsyncStorage.setItem("currentLeccionId", lessonId);
-  }
-
+    await AsyncStorage.setItem("currentLeccionId", lessonId);
+  };
 
   const fetchIntentos = async (userId: string, pruebaId: number) => {
     try {
@@ -63,7 +70,6 @@ const DetalleLeccionScreen = ({ route }) => {
 
   const fetchPruebaId = async (lessonId: number) => {
     try {
-      
       const response = await fetch(
         `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas`
       );
@@ -126,14 +132,22 @@ const DetalleLeccionScreen = ({ route }) => {
     }, [lessonId])
   );
 
+  const handleLastImageReached = () => {
+    setLastImageReached(true); // Actualizamos el estado cuando se alcance la última imagen
+  };
+
   const renderItem = ({ item }: { item: any }) => {
     if (item.type === "detail") {
       return (
         <View style={styles.sectionContainer}>
-          <LeccionDetail lessonId={lessonId} hasPrueba={pruebaId !== null} />
+          <LeccionDetail
+            lessonId={lessonId}
+            hasPrueba={pruebaId !== null}
+            onLastImageReached={handleLastImageReached} // Pasamos la nueva prop
+          />
         </View>
       );
-    } else if (item.type === "prueba" && pruebaId !== null) {
+    } else if (item.type === "prueba" && pruebaId !== null && lastImageReached) { // Agregamos la condición de lastImageReached
       return (
         <View style={styles.sectionContainer}>
           <PruebaComponent
@@ -147,6 +161,7 @@ const DetalleLeccionScreen = ({ route }) => {
     }
     return null;
   };
+
   const data = [{ type: "detail" }, { type: "prueba", data: intentos }];
 
   return (
@@ -156,12 +171,14 @@ const DetalleLeccionScreen = ({ route }) => {
       <NavigationBar />
       <FlatList
         data={data}
+        extraData={forceRender} // Añadimos extraData para que re-renderice al cambiar el estado
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
       />
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   safeArea: {
