@@ -44,7 +44,6 @@ const LevelProgress: React.FC<LevelProgressProps> = ({ currentLevel, onLevelPres
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',

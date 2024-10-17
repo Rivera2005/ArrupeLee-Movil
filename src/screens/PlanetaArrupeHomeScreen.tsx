@@ -1,9 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, Image, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+} from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import BitacoraDeVuelo from "../Components/BitacoraDeVuelo";
 
 type RootStackParamList = {
@@ -23,21 +32,103 @@ type Props = {
 
 export default function PlanetArrupeHomeScreen({ navigation }: Props) {
   const [userNombre, setUserNombre] = useState<string | null>(null);
+  const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["LITERAL"]); // Literal desbloqueado por defecto
+  const [progressLiteral, setProgressLiteral] = useState(0);
+  const [progressInferencial, setProgressInferencial] = useState(0);
+  const [progressCritico, setProgressCritico] = useState(0);
 
-  useEffect(() => {
-    const getUserNombre = async () => {
-      try {
-        const nombre = await AsyncStorage.getItem("userNombre");
-        if (nombre) {
-          setUserNombre(nombre);
-        }
-      } catch (error) {
-        console.error("Error al obtener el nombre del usuario:", error);
+  const nav = useNavigation();
+
+  const fetchProgressData = async () => {
+    try {
+      const userId = await AsyncStorage.getItem("userId");
+      if (!userId) {
+        console.warn("No se encontró el userId en AsyncStorage.");
+        return;
       }
-    };
 
-    getUserNombre();
-  }, []);
+      const response = await fetch(
+        `http://192.242.6.152:8085/arrupe/sv/arrupe/lecciones`
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(
+          `HTTP error! Status: ${response.status}, Message: ${errorText}`
+        );
+      }
+
+      const fetchedLessons = await response.json();
+
+      const leccionesLiteral = fetchedLessons.filter(
+        (lesson: any[]) => lesson[3] === "LITERAL"
+      );
+      const leccionesInferencial = fetchedLessons.filter(
+        (lesson: any[]) => lesson[3] === "INFERENCIAL"
+      );
+      const leccionesCritico = fetchedLessons.filter(
+        (lesson: any[]) => lesson[3] === "CRITICO"
+      );
+
+      const calculateProgress = async (lessons: any[]) => {
+        const progressArray = await Promise.all(
+          lessons.map(async (lesson: any[]) => {
+            const progressResponse = await fetch(
+              `http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+            );
+            if (progressResponse.ok) {
+              const progressData = await progressResponse.json();
+              return progressData.porcentajeCompletado || 0;
+            }
+            return 0;
+          })
+        );
+
+        return (
+          progressArray.reduce((a, b) => a + b, 0) / progressArray.length || 0
+        );
+      };
+
+      const literalProgress = await calculateProgress(leccionesLiteral);
+      const inferencialProgress = await calculateProgress(leccionesInferencial);
+      const criticoProgress = await calculateProgress(leccionesCritico);
+
+      setProgressLiteral(literalProgress);
+      setProgressInferencial(inferencialProgress);
+      setProgressCritico(criticoProgress);
+
+      await AsyncStorage.setItem("progressLiteral", literalProgress.toString());
+      await AsyncStorage.setItem(
+        "progressInferencial",
+        inferencialProgress.toString()
+      );
+      await AsyncStorage.setItem("progressCritico", criticoProgress.toString());
+
+      // Procesar los niveles desbloqueados basado en el progreso
+      const newUnlockedLevels = ["LITERAL"];
+
+      if (literalProgress >= 100) {
+        newUnlockedLevels.push("INFERENCIAL");
+      }
+      if (inferencialProgress >= 100) {
+        newUnlockedLevels.push("CRITICO");
+      }
+
+      setUnlockedLevels(newUnlockedLevels);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error("Error al obtener los datos de progreso:", error.message);
+      } else {
+        console.error("Error desconocido:", error);
+      }
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProgressData();
+    }, [])
+  );
 
   const handleButtonPress = async (level: string) => {
     try {
@@ -61,22 +152,49 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
         )}
 
         <View style={styles.planetsSection}>
-          <TouchableOpacity onPress={() => handleButtonPress("LITERAL")}>
+          <TouchableOpacity
+            onPress={() =>
+              unlockedLevels.includes("LITERAL") && handleButtonPress("LITERAL")
+            }
+            disabled={!unlockedLevels.includes("LITERAL")}
+          >
             <Image
               source={require("../../assets/nivelLiteral.png")}
-              style={styles.planet}
+              style={[
+                styles.planet,
+                !unlockedLevels.includes("LITERAL") && styles.lockedPlanet,
+              ]}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleButtonPress("INFERENCIAL")}>
+
+          <TouchableOpacity
+            onPress={() =>
+              unlockedLevels.includes("INFERENCIAL") &&
+              handleButtonPress("INFERENCIAL")
+            }
+            disabled={!unlockedLevels.includes("INFERENCIAL")}
+          >
             <Image
               source={require("../../assets/nivelInferencial.png")}
-              style={styles.planet}
+              style={[
+                styles.planet,
+                !unlockedLevels.includes("INFERENCIAL") && styles.lockedPlanet,
+              ]}
             />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => handleButtonPress("CRITICO")}>
+
+          <TouchableOpacity
+            onPress={() =>
+              unlockedLevels.includes("CRITICO") && handleButtonPress("CRITICO")
+            }
+            disabled={!unlockedLevels.includes("CRITICO")}
+          >
             <Image
               source={require("../../assets/nivelCritico.png")}
-              style={styles.planet}
+              style={[
+                styles.planet,
+                !unlockedLevels.includes("CRITICO") && styles.lockedPlanet,
+              ]}
             />
           </TouchableOpacity>
         </View>
@@ -85,7 +203,12 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
           <Text style={styles.adventureTitle}>Mi aventura lectora</Text>
         </View>
 
-        <BitacoraDeVuelo />
+        {/* Pasar los datos de progreso a BitacoraDeVuelo */}
+        <BitacoraDeVuelo
+          progressLiteral={progressLiteral}
+          progressInferencial={progressInferencial}
+          progressCritico={progressCritico}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -133,6 +256,9 @@ const styles = StyleSheet.create({
   adventureTitle: {
     color: "white",
     fontSize: 18,
-    textAlign: "center"
+    textAlign: "center",
+  },
+  lockedPlanet: {
+    opacity: 0.3,
   },
 });

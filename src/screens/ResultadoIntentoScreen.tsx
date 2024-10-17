@@ -15,7 +15,7 @@ const ResultadoIntentoScreen: React.FC = () => {
     const fetchResultado = async () => {
       try {
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
 
         if (!response.ok) {

@@ -57,7 +57,7 @@ export default function ResultadosScreen({
         }
 
         const responseResultados = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
         const resultadosData = await responseResultados.json();
 
@@ -82,7 +82,7 @@ export default function ResultadosScreen({
 
           const pruebaId = latestResult[1];
           const responsePrueba = await fetch(
-            `http://192.168.0.15:8085/arrupe/sv/arrupe/prueba`
+            `http://192.242.6.152:8085/arrupe/sv/arrupe/prueba`
           );
           const pruebaData = await responsePrueba.json();
 

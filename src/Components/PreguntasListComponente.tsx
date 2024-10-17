@@ -30,7 +30,7 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
     const fetchPreguntas = async () => {
       try {
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/preguntas"
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/preguntas"
         );
         const data = await response.json();
 
@@ -73,7 +73,6 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
     preguntas: parseInt(pregunta.id),
     respuestas: selecciones[pregunta.id] ? parseInt(selecciones[pregunta.id]) : null,
     Usuario: usuarioId ? parseInt(usuarioId) : null,
-    tiempoRespuesta: 567.0, //logica de momento
   }));
 
   if (loading) {

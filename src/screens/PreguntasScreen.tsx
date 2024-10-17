@@ -40,9 +40,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         if (route.params?.leccionId) {
           setLeccionId(route.params.leccionId);
         } else {
-          const storedLeccionId = await AsyncStorage.getItem(
-            "currentLeccionId"
-          );
+          const storedLeccionId = await AsyncStorage.getItem("currentLeccionId");
           if (storedLeccionId) {
             setLeccionId(parseInt(storedLeccionId, 10)); // Convierte a entero
           }
@@ -51,7 +49,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         console.error("Error al obtener el ID de la lección:", error);
       }
     };
-
+  
     const getPruebaId = async () => {
       if (route.params?.pruebaId) {
         setPruebaId(route.params.pruebaId);
@@ -59,11 +57,11 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         console.warn("No se recibió pruebaId desde los parámetros.");
       }
     };
-
+  
     getLeccionId();
     getPruebaId();
   }, [route.params?.leccionId, route.params?.pruebaId]);
-
+  
   if (!pruebaId) {
     return (
       <Text style={styles.errorText}>No se ha seleccionado una prueba.</Text>
@@ -89,7 +87,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         }
 
         const response = await fetch(
-          `http://192.168.0.15:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.242.6.152:8085/arrupe/sv/arrupe/respuestas`
         );
 
         if (!response.ok) {
@@ -116,8 +114,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   };
 
   const handleTerminarEjercicio = async (datosUsuariosRespuestas: any) => {
-    console.log("Terminando ejercicio..."); // Verificar que se llama a esta función
-
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
 
@@ -130,14 +126,15 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
       // Guarda las respuestas del usuario
       for (const respuesta of datosUsuariosRespuestas) {
+
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(respuesta),
+            body: JSON.stringify(respuesta), // Asegúrate de que el objeto 'respuesta' tenga el formato correcto
           }
         );
 
@@ -155,15 +152,12 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         datosUsuariosRespuestas
       );
 
-      console.log("Puntaje total:", puntajeTotal); // Verifica el puntaje total calculado
-
-      // Aquí debes llamar a registrarProgresoLeccion si el puntaje total es 60 o más
+      // Si el puntaje es suficiente, completa el 20% faltante
       if (puntajeTotal >= 60) {
         if (leccionId !== null) {
-          await registrarProgresoLeccion(userId, leccionId, 20);
+          await registrarProgresoLeccion(userId, leccionId, 100);
         } else {
           console.error("No hay una lección seleccionada");
-          // Podrías también mostrar un mensaje al usuario o manejar este caso de otra manera
         }
       }
 
@@ -174,7 +168,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       };
 
       const responseGuardarResultados = await fetch(
-        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
+        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
         {
           method: "POST",
           headers: {
@@ -200,7 +194,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     porcentajeCompletado: number
   ) => {
     const fechaActual = new Date().toISOString().slice(0, 19).replace("T", " ");
-    console.log("leccionId de preguntasscreen: " + leccionId);
     const datosProgreso = {
       usuario: userId,
       leccion: leccionId,
@@ -208,11 +201,9 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       fecha: fechaActual,
     };
 
-    console.log("Enviando datos de progreso:", datosProgreso); // Agregar console.log para verificar
-
     try {
       const response = await fetch(
-        "http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+        "http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
         {
           method: "POST",
           headers: {
@@ -225,8 +216,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       if (!response.ok) {
         const errorResponse = await response.json();
         console.error("Error al enviar progreso:", errorResponse);
-      } else {
-        console.log("Progreso guardado exitosamente");
       }
     } catch (error) {
       console.error("Error al enviar la solicitud de progreso:", error);

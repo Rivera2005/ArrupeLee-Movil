@@ -1,113 +1,27 @@
-import React, { useState, useCallback } from "react";
+import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation, useRoute, RouteProp, useFocusEffect } from "@react-navigation/native";
-import { RootStackParamList } from "../../navigation/StackNavigator";
+import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../navigation/StackNavigator";
 
+// Definir el tipo de navegación para Bitacora
 type BitacoraNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   keyof RootStackParamList
 >;
 
-const BitacoraDeVuelo: React.FC = () => {
+type Props = {
+  progressLiteral: number;
+  progressInferencial: number;
+  progressCritico: number;
+};
+
+const BitacoraDeVuelo: React.FC<Props> = ({
+  progressLiteral,
+  progressInferencial,
+  progressCritico,
+}) => {
   const navigation = useNavigation<BitacoraNavigationProp>();
-  const route =
-    useRoute<RouteProp<RootStackParamList, keyof RootStackParamList>>();
-  const [progressLiteral, setProgressLiteral] = useState(0);
-  const [progressInferencial, setProgressInferencial] = useState(0);
-  const [progressCritico, setProgressCritico] = useState(0);
-
-  useFocusEffect(
-    useCallback(() => {
-      const fetchProgressData = async () => {
-        try {
-          const userId = await AsyncStorage.getItem("userId");
-          if (!userId) {
-            console.warn("No se encontró el userId en AsyncStorage.");
-            return;
-          }
-
-          const response = await fetch(
-            `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones`
-          );
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(
-              `HTTP error! Status: ${response.status}, Message: ${errorText}`
-            );
-          }
-
-          const fetchedLessons = await response.json();
-
-          const leccionesLiteral = fetchedLessons.filter(
-            (lesson: any[]) => lesson[3] === "LITERAL"
-          );
-          const leccionesInferencial = fetchedLessons.filter(
-            (lesson: any[]) => lesson[3] === "INFERENCIAL"
-          );
-          const leccionesCritico = fetchedLessons.filter(
-            (lesson: any[]) => lesson[3] === "CRITICO"
-          );
-
-          const calculateProgress = async (lessons: any[]) => {
-            const progressArray = await Promise.all(
-              lessons.map(async (lesson: any[]) => {
-                const progressResponse = await fetch(
-                  `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
-                );
-                if (progressResponse.ok) {
-                  const progressData = await progressResponse.json();
-                  return progressData.porcentajeCompletado || 0;
-                }
-                return 0;
-              })
-            );
-
-            return (
-              progressArray.reduce((a, b) => a + b, 0) / progressArray.length ||
-              0
-            );
-          };
-
-          const literalProgress = await calculateProgress(leccionesLiteral);
-          const inferencialProgress = await calculateProgress(
-            leccionesInferencial
-          );
-          const criticoProgress = await calculateProgress(leccionesCritico);
-
-          setProgressLiteral(literalProgress);
-          setProgressInferencial(inferencialProgress);
-          setProgressCritico(criticoProgress);
-
-          await AsyncStorage.setItem(
-            "progressLiteral",
-            literalProgress.toString()
-          );
-          await AsyncStorage.setItem(
-            "progressInferencial",
-            inferencialProgress.toString()
-          );
-          await AsyncStorage.setItem(
-            "progressCritico",
-            criticoProgress.toString()
-          );
-        } catch (error) {
-          if (error instanceof Error) {
-            console.error(
-              "Error al obtener los datos de progreso:",
-              error.message
-            );
-          } else {
-            console.error("Error desconocido:", error);
-          }
-        }
-      };
-
-      fetchProgressData();
-    }, [])
-  );
 
   return (
     <TouchableOpacity onPress={() => navigation.navigate("BitacoraVuelo")}>

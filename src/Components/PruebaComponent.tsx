@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../navigation/StackNavigator";
@@ -34,13 +28,14 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const iniciarPrueba = () => {
-    if (pruebaId) {
-      navigation.navigate("Preguntas", { pruebaId: pruebaId, lessonId: lessonId });
-    } else {
-      console.warn("El id de la prueba no está disponible.");
-    }
-  };
+    const iniciarPrueba = () => {
+      if (pruebaId && lessonId) {
+        navigation.navigate("Preguntas", { pruebaId: pruebaId, leccionId: lessonId });
+      } else {
+        console.warn("El id de la prueba o el id de la lección no está disponible.");
+      }
+    };
+    
 
   const onMostrarDetalle = (intentoId: number) => {
     navigation.navigate("ResultadoIntento", { intentoId });

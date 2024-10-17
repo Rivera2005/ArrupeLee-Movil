@@ -38,12 +38,13 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
   const [images, setImages] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchLessonDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.168.0.15:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
+          `http://192.242.6.152:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -60,7 +61,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
 
         if (storedUserId) {
           const progresoResponse = await fetch(
-            `http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
+            `http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
           );
           if (progresoResponse.ok) {
             const progresoData = await progresoResponse.json();
@@ -91,7 +92,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
   }, [lessonId]);
 
   const registrarProgreso = async (index: number) => {
-    if (images.length === 0) return;
+    if (images.length === 0 || isSubmitting) return;
 
     const totalImages = images.length;
     let porcentajeCompletado = ((index + 1) / totalImages) * 100;
@@ -101,6 +102,8 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
     }
 
     if (porcentajeCompletado > maxPorcentajeCompletado) {
+      setIsSubmitting(true); // Evitar múltiples envíos
+
       setMaxPorcentajeCompletado(porcentajeCompletado);
 
       const fechaActual = new Date()
@@ -111,11 +114,12 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
       try {
         if (!userId) {
           console.error("Error: userId no está disponible");
+          setIsSubmitting(false);
           return;
         }
 
         const response = await fetch(
-          "http://192.168.0.15:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+          "http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
           {
             method: "POST",
             headers: {
@@ -137,6 +141,8 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
         }
       } catch (error: any) {
         console.error("Error al actualizar el progreso:", error.message);
+      } finally {
+        setIsSubmitting(false); // Liberar el bloqueo después de la respuesta
       }
     }
   };

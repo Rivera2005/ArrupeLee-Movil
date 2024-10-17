@@ -1,18 +1,11 @@
-import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  FlatList,
-  View,
-} from "react-native";
+import React, { useState } from "react";
+import { SafeAreaView, StatusBar, StyleSheet, FlatList, View } from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
 import PruebaComponent from "../Components/PruebaComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-import LessonList from "../Components/LessonList";
 
 const formatearFecha = (fechaISO: string) => {
   const fecha = new Date(fechaISO);
@@ -41,7 +34,7 @@ const DetalleLeccionScreen = ({ route }) => {
   const fetchIntentos = async (userId: string, pruebaId: number) => {
     try {
       const response = await fetch(
-        "http://192.168.0.15:8085/arrupe/sv/arrupe/resultadosPrueba"
+        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -72,7 +65,7 @@ const DetalleLeccionScreen = ({ route }) => {
     try {
       
       const response = await fetch(
-        `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas`
+        `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -85,7 +78,7 @@ const DetalleLeccionScreen = ({ route }) => {
       if (matchingLesson) {
         const id_leccion_prueba = matchingLesson[0];
         const pruebaResponse = await fetch(
-          `http://192.168.0.15:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
+          `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
         );
         if (!pruebaResponse.ok) {
           throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
