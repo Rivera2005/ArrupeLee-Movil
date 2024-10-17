@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 type LevelProgressProps = {
@@ -10,6 +10,13 @@ type LevelProgressProps = {
 const levels = ['LITERAL', 'INFERENCIAL', 'CRITICO'];
 
 const LevelProgress: React.FC<LevelProgressProps> = ({ currentLevel, onLevelPress, unlockedLevels }) => {
+  const [forceRender, setForceRender] = useState(false);
+
+  useEffect(() => {
+    // Cuando cambie unlockedLevels, forzamos el renderizado
+    setForceRender((prev) => !prev);
+  }, [unlockedLevels]);
+
   return (
     <View style={styles.container}>
       {levels.map((level) => {
@@ -44,6 +51,7 @@ const LevelProgress: React.FC<LevelProgressProps> = ({ currentLevel, onLevelPres
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
