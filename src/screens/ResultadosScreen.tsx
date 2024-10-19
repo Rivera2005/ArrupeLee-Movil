@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator } from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, ActivityIndicator, ImageBackground } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import ResultadoComponente from "../Components/ResultadoComponente";
 import Header from "../Components/Header";
@@ -57,7 +57,7 @@ export default function ResultadosScreen({
         }
 
         const responseResultados = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
+          "http://192.168.0.10:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
         const resultadosData = await responseResultados.json();
 
@@ -82,7 +82,7 @@ export default function ResultadosScreen({
 
           const pruebaId = latestResult[1];
           const responsePrueba = await fetch(
-            `http://192.242.6.152:8085/arrupe/sv/arrupe/prueba`
+            `http://192.168.0.10:8085/arrupe/sv/arrupe/prueba`
           );
           const pruebaData = await responsePrueba.json();
 
@@ -114,7 +114,11 @@ export default function ResultadosScreen({
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
+    <SafeAreaView style={styles.containerview}>
       <Header />
       <NavigationBar />
       <ScrollView style={styles.content}>
@@ -139,13 +143,18 @@ export default function ResultadosScreen({
         )}
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
   },
   content: {
     flex: 1,

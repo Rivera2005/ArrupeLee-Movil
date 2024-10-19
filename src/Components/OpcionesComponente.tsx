@@ -32,7 +32,7 @@ const OpcionesComponente: React.FC<OpcionComponenteProps> = ({
     const fetchOpciones = async () => {
       try {
         const response = await fetch(
-          `http://192.242.6.152:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.168.0.10:8085/arrupe/sv/arrupe/respuestas`
         );
         const data = await response.json();
         const respuestasFiltradas = data.filter(

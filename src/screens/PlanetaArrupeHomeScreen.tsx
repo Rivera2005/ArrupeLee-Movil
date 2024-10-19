@@ -7,6 +7,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
@@ -32,23 +33,26 @@ type Props = {
 
 export default function PlanetArrupeHomeScreen({ navigation }: Props) {
   const [userNombre, setUserNombre] = useState<string | null>(null);
-  const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["LITERAL"]); // Literal desbloqueado por defecto
+  const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["LITERAL"]);
   const [progressLiteral, setProgressLiteral] = useState(0);
   const [progressInferencial, setProgressInferencial] = useState(0);
   const [progressCritico, setProgressCritico] = useState(0);
+  const [shouldRenderNavBar, setShouldRenderNavBar] = useState(false); // Estado para forzar el render
 
   const nav = useNavigation();
 
   const fetchProgressData = async () => {
     try {
       const userId = await AsyncStorage.getItem("userId");
+      const idNivelEducativo = await AsyncStorage.getItem("idNivelEducativo");
+
       if (!userId) {
         console.warn("No se encontró el userId en AsyncStorage.");
         return;
       }
 
       const response = await fetch(
-        `http://192.1.2.92:8085/arrupe/sv/arrupe/lecciones`
+        `http://192.168.0.10:8085/arrupe/sv/arrupe/lecciones`
       );
 
       if (!response.ok) {
@@ -60,22 +64,35 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
 
       const fetchedLessons = await response.json();
 
+      console.log(idNivelEducativo);
       const leccionesLiteral = fetchedLessons.filter(
-        (lesson: any[]) => lesson[3] === "LITERAL"
+        (lesson: any[]) =>
+          lesson[3] === "LITERAL" &&
+          lesson[2] == idNivelEducativo &&
+          lesson[6] === "HABILITADO"
       );
+
       const leccionesInferencial = fetchedLessons.filter(
-        (lesson: any[]) => lesson[3] === "INFERENCIAL"
+        (lesson: any[]) =>
+          lesson[3] === "INFERENCIAL" &&
+          lesson[2] == idNivelEducativo &&
+          lesson[6] === "HABILITADO"
       );
       const leccionesCritico = fetchedLessons.filter(
-        (lesson: any[]) => lesson[3] === "CRITICO"
+        (lesson: any[]) =>
+          lesson[3] === "CRITICO" &&
+          lesson[2] == idNivelEducativo &&
+          lesson[6] === "HABILITADO"
       );
+
+      console.log(leccionesLiteral);
 
       // REVISARRRRRRRRRRR
       const calculateProgress = async (lessons: any[]) => {
         const progressArray = await Promise.all(
           lessons.map(async (lesson: any[]) => {
             const progressResponse = await fetch(
-              `http://192.1.2.92:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+              `http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
             );
             if (progressResponse.ok) {
               const progressData = await progressResponse.json();
@@ -128,6 +145,7 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
   useFocusEffect(
     useCallback(() => {
       fetchProgressData();
+      setShouldRenderNavBar(prev => !prev); // Cambiar el estado para forzar render
     }, [])
   );
 
@@ -141,9 +159,13 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
+    <SafeAreaView style={styles.containerview}>
       <Header />
-      <NavigationBar />
+      <NavigationBar key={shouldRenderNavBar ? 'nav-bar' : 'nav-bar-inactive'} />
       <ScrollView style={styles.content}>
         {userNombre && (
           <Text style={styles.welcomeMessage}>
@@ -212,13 +234,18 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
         />
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
   },
   content: {
     flex: 1,

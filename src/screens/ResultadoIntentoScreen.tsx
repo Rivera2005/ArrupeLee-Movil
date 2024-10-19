@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Text } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Text,
+  ImageBackground,
+} from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import ResultadoComponente from "../Components/ResultadoComponente";
 import Header from "../Components/Header";
@@ -15,7 +21,7 @@ const ResultadoIntentoScreen: React.FC = () => {
     const fetchResultado = async () => {
       try {
         const response = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
+          "http://192.168.0.10:8085/arrupe/sv/arrupe/resultadosPrueba"
         );
 
         if (!response.ok) {
@@ -62,30 +68,38 @@ const ResultadoIntentoScreen: React.FC = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <Header />
-      <NavigationBar />
-      <View style={styles.containerResultado}>
-        <ResultadoComponente
-          titulo="Resultado del Intento"
-          nombreUsuario="Juan Pérez"
-          idUsuario={resultado.userId}
-          fechaInicio={new Date(resultado.fecha).toLocaleString()}
-          duracion="00:30:00"
-          respuestasGuardadas={10}
-          puntuacion={resultado.puntuacion}
-          puntuacionMaxima={100}
-          onRegresarListaIntentos={handleRegresarListaIntentos}
-        />
-      </View>
-    </ScrollView>
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
+      <ScrollView style={styles.containerview}>
+        <Header />
+        <NavigationBar />
+        <View style={styles.containerResultado}>
+          <ResultadoComponente
+            titulo="Resultado del Intento"
+            nombreUsuario="Juan Pérez"
+            idUsuario={resultado.userId}
+            fechaInicio={new Date(resultado.fecha).toLocaleString()}
+            respuestasGuardadas={10}
+            puntuacion={resultado.puntuacion}
+            puntuacionMaxima={100}
+            onRegresarListaIntentos={handleRegresarListaIntentos}
+          />
+        </View>
+      </ScrollView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
   },
   containerResultado: {
     flex: 1,

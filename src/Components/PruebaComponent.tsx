@@ -51,7 +51,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
 
         // Aquí se hace la petición para obtener el progreso del usuario
         const response = await fetch(
-          `http://192.242.4.55:8085/arrupe/sv/arrupe/progresoEstudiante`
+          `http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante`
         );
 
         if (response.ok) {

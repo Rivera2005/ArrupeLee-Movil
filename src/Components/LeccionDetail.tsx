@@ -50,7 +50,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
     const fetchLessonDetail = async () => {
       try {
         const response = await fetch(
-          `http://192.242.6.152:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
+          `http://192.168.0.10:8085/arrupe/sv/arrupe/lecciones/${lessonId}`
         );
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -67,7 +67,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
 
         if (storedUserId) {
           const progresoResponse = await fetch(
-            `http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
+            `http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${storedUserId}/leccion/${lessonId}`
           );
           if (progresoResponse.ok) {
             const progresoData = await progresoResponse.json();
@@ -125,7 +125,7 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
         }
 
         const response = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+          "http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
           {
             method: "POST",
             headers: {
@@ -276,7 +276,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#673AB7",
   },
   loadingText: {
     marginTop: 10,

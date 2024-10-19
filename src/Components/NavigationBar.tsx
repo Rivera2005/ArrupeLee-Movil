@@ -97,10 +97,6 @@ const NavigationBar = () => {
               <Text style={styles.menuItemText}>Mi progreso</Text>
             </TouchableOpacity>
             <View style={styles.menuFooter}>
-              <TouchableOpacity style={styles.footerItem}>
-                <Ionicons name="mail-outline" size={24} color="#666" />
-                <Text style={styles.footerItemText}>Bandeja de entrada</Text>
-              </TouchableOpacity>
               <TouchableOpacity
                 style={styles.footerItem}
                 onPress={() => navigation.navigate("Certificados")}
@@ -125,12 +121,19 @@ const NavigationBar = () => {
 
 const styles = StyleSheet.create({
   navbar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 10,
-    backgroundColor: "#512DA8",
+    backgroundColor: '#020006A3',
     height: 60,
+    // Sombra para iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    // Elevación para Android
+    elevation: 5,
   },
   iconButton: {
     padding: 5,

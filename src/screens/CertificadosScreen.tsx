@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, Modal, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Image,
+  ImageBackground,
+} from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
@@ -107,83 +117,94 @@ export default function PlanetArrupeCertificadosScreen({ navigation }: Props) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header />
-      <NavigationBar />
-      <ScrollView style={styles.content}>
-        {progressLiteral === 100 && (
-          <CertificadoCard
-            planetImage={require("../../assets/nivelLiteral.png")}
-            nivel="LITERAL"
-            descripcion="Tras haber completado todas las lecciones del Nivel Literal has obtenido un reconocimiento."
-            onObtenerCertificado={() => handleObtenerCertificado("LITERAL")}
-          />
-        )}
-        {progressInferencial === 100 && (
-          <CertificadoCard
-            planetImage={require("../../assets/nivelInferencial.png")}
-            nivel="INFERENCIAL"
-            descripcion="Tras haber completado todas las lecciones del Nivel Inferencial has obtenido un reconocimiento."
-            onObtenerCertificado={() => handleObtenerCertificado("INFERENCIAL")}
-          />
-        )}
-        {progressCritico === 100 && (
-          <CertificadoCard
-            planetImage={require("../../assets/nivelCritico.png")}
-            nivel="CRÍTICO"
-            descripcion="Tras haber completado todas las lecciones del Nivel Crítico has obtenido un reconocimiento."
-            onObtenerCertificado={() => handleObtenerCertificado("CRÍTICO")}
-          />
-        )}
-      </ScrollView>
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
+      <SafeAreaView style={styles.containerview}>
+        <Header />
+        <NavigationBar />
+        <ScrollView style={styles.content}>
+          {progressLiteral === 100 && (
+            <CertificadoCard
+              planetImage={require("../../assets/nivelLiteral.png")}
+              nivel="LITERAL"
+              descripcion="Tras haber completado todas las lecciones del Nivel Literal has obtenido un reconocimiento."
+              onObtenerCertificado={() => handleObtenerCertificado("LITERAL")}
+            />
+          )}
+          {progressInferencial === 100 && (
+            <CertificadoCard
+              planetImage={require("../../assets/nivelInferencial.png")}
+              nivel="INFERENCIAL"
+              descripcion="Tras haber completado todas las lecciones del Nivel Inferencial has obtenido un reconocimiento."
+              onObtenerCertificado={() =>
+                handleObtenerCertificado("INFERENCIAL")
+              }
+            />
+          )}
+          {progressCritico === 100 && (
+            <CertificadoCard
+              planetImage={require("../../assets/nivelCritico.png")}
+              nivel="CRÍTICO"
+              descripcion="Tras haber completado todas las lecciones del Nivel Crítico has obtenido un reconocimiento."
+              onObtenerCertificado={() => handleObtenerCertificado("CRÍTICO")}
+            />
+          )}
+        </ScrollView>
 
-      <Modal
-        visible={certificadoVisible}
-        transparent={true}
-        animationType="fade"
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.certificadoContainer}>
-            <ViewShot
-              ref={viewShotRef}
-              options={{ format: "png", quality: 1.0 }}
-              style={{ marginBottom: 0, padding: 0 }}
+        <Modal
+          visible={certificadoVisible}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.certificadoContainer}>
+              <ViewShot
+                ref={viewShotRef}
+                options={{ format: "png", quality: 1.0 }}
+                style={{ marginBottom: 0, padding: 0 }}
+              >
+                <CertificadoSVG
+                  nombre={userNombre}
+                  apellido={userApellido}
+                  nivel={certificadoNivel}
+                  fecha={new Date().toLocaleDateString()}
+                  logoUrl="https://static.wixstatic.com/media/700331_13536b8cb95a4445a4519949edf76265~mv2.png/v1/fill/w_480,h_478,al_c,q_85,usm_4.00_1.00_0.00,enc_auto/2020_escudo%20colegio%20PA_20%25.png"
+                  planetaUrl={getPlanetaUrl(certificadoNivel)}
+                  carnet={userCarnet}
+                />
+              </ViewShot>
+            </View>
+            <TouchableOpacity
+              style={styles.compartirButton}
+              onPress={handleShare}
             >
-              <CertificadoSVG
-                nombre={userNombre}
-                apellido={userApellido}
-                nivel={certificadoNivel}
-                fecha={new Date().toLocaleDateString()}
-                logoUrl="https://static.wixstatic.com/media/700331_13536b8cb95a4445a4519949edf76265~mv2.png/v1/fill/w_480,h_478,al_c,q_85,usm_4.00_1.00_0.00,enc_auto/2020_escudo%20colegio%20PA_20%25.png"
-                planetaUrl={getPlanetaUrl(certificadoNivel)}
-                carnet={userCarnet}
-              />
-            </ViewShot>
+              <Text style={styles.compartirButtonText}>
+                Compartir Certificado
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.compartirButton}
+              onPress={() => setCertificadoVisible(false)}
+            >
+              <Text style={styles.compartirButtonText}>Cerrar</Text>
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            style={styles.compartirButton}
-            onPress={handleShare}
-          >
-            <Text style={styles.compartirButtonText}>
-              Compartir Certificado
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.compartirButton}
-            onPress={() => setCertificadoVisible(false)}
-          >
-            <Text style={styles.compartirButtonText}>Cerrar</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    </SafeAreaView>
+        </Modal>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
     paddingBottom: 20,
   },
   content: {
@@ -234,8 +255,8 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
   },
   certificadoContainer: {
-    width: '100%',
-    backgroundColor: 'white',
+    width: "100%",
+    backgroundColor: "white",
     borderRadius: 0,
     padding: 1,
   },

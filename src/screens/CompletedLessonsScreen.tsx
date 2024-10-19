@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet, Text } from "react-native";
+import { View, FlatList, StyleSheet, Text, ImageBackground } from "react-native";
 import LessonItem from "../Components/LessonItem";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -26,7 +26,7 @@ const CompletedLessonsScreen = () => {
       }
 
       const response = await fetch(
-        `http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante`
+        `http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante`
       );
 
       if (!response.ok) {
@@ -42,7 +42,7 @@ const CompletedLessonsScreen = () => {
       for (const lesson of progressData) {
         if (lesson[1] == userId && lesson[4] === 100) {
           const lessonResponse = await fetch(
-            `http://192.242.6.152:8085/arrupe/sv/arrupe/lecciones/${lesson[3]}`
+            `http://192.168.0.10:8085/arrupe/sv/arrupe/lecciones/${lesson[3]}`
           );
 
           if (!lessonResponse.ok) {
@@ -85,7 +85,11 @@ const CompletedLessonsScreen = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+    source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+    style={styles.container}
+  >
+    <View style={styles.containerview}>
       <Header />
       {loading ? (
         <Text style={styles.loadingText}>Cargando lecciones completadas...</Text>
@@ -100,13 +104,18 @@ const CompletedLessonsScreen = () => {
         />
       )}
     </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#673AB7',
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
     paddingTop: 6,
   },
   loadingText: {

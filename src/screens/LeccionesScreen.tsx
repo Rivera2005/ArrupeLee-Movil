@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ImageBackground } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import LessonList from "../Components/LessonList";
@@ -79,7 +79,11 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
     }
   };
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
+    <View style={styles.containerview}>
       <Header />
       <NavigationBar />
       <LevelProgress
@@ -92,14 +96,19 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
         userNivelLiterario={currentLevel} // Nivel actual para cargar las lecciones correctas
       />
     </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
     paddingTop: 6,
     flex: 1,
-    backgroundColor: "#673AB7",
   },
   header: {
     fontSize: 24,

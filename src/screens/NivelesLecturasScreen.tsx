@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { View, Image, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Text } from "react-native";
+import { View, Image, StyleSheet, SafeAreaView, ScrollView, Dimensions, TouchableOpacity, Text, ImageBackground} from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Video, ResizeMode } from "expo-av";
 import Header from "../Components/Header";
@@ -61,7 +61,11 @@ export default function NivelesLecturasScreen({ navigation }: Props) {
   }, [currentIndex]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ImageBackground
+    source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+    style={styles.container}
+  >
+    <SafeAreaView style={styles.containerview}>
       <Header />
       <ScrollView contentContainerStyle={styles.content}>
         <Text style={styles.sectionTitle}>Niveles de Lectura</Text>
@@ -120,13 +124,18 @@ export default function NivelesLecturasScreen({ navigation }: Props) {
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
   },
   content: {
     paddingVertical: 20,

@@ -6,7 +6,6 @@ interface ResultadoComponenteProps {
   nombreUsuario: string;
   idUsuario: string;
   fechaInicio: string;
-  duracion: string;
   respuestasGuardadas: number;
   puntuacion: number;
   puntuacionMaxima: number;
@@ -43,7 +42,7 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
        
       </View>
       <Text style={styles.felicitaciones}>
-        {puntuacion < 60
+        {puntuacion < 90
           ? "No ha alcanzado el puntaje mínimo."
           : "Felicitaciones ha aprobado el ejercicio."}
       </Text>
@@ -61,7 +60,6 @@ const ResultadoComponente: React.FC<ResultadoComponenteProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#673AB7',
     padding: 20,
     borderRadius: 10,
   },

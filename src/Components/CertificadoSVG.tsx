@@ -1,5 +1,5 @@
 import React from "react";
-import { Svg, Rect, Text, Image } from "react-native-svg";
+import { Svg, Rect, Text, Image, Defs, Pattern } from "react-native-svg";
 import { Dimensions } from "react-native";
 
 interface CertificadoSVGProps {
@@ -18,20 +18,28 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
   fecha,
   logoUrl,
   planetaUrl,
-  carnet, // Añadir el carné
+  carnet,
 }) => {
   const screenWidth = Dimensions.get("window").width;
-  var screenHeight = Dimensions.get("window").height;
-  const height = 225;
+  const screenHeight = 225;
+  
 
   return (
-    <Svg
-      height={height}
-      width={screenWidth}
-      viewBox={`0 0 ${screenWidth} ${height}`}
-    >
-      {/* Fondo del certificado */}
-      <Rect x="-2" y="0" width="100%" height="100%" fill="#7F40BD" />
+    <Svg height={screenHeight} width={screenWidth} viewBox={`0 0 ${screenWidth} ${screenHeight}`}>
+      {/* Fondo del certificado con imagen */}
+      <Defs>
+        <Pattern id="bgPattern" patternUnits="userSpaceOnUse" width="100%" height="100%">
+          <Image
+            href={require("../../assets/bg.png")}
+            x="0"
+            y="0"
+            width={screenWidth}
+            height={screenHeight}
+            preserveAspectRatio="xMidYMid slice"
+          />
+        </Pattern>
+      </Defs>
+      <Rect x="0" y="0" width="100%" height="100%" fill="url(#bgPattern)" />
 
       {/* Logo "Padre Arrupe" */}
       <Image
@@ -96,7 +104,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         y="158"
         fontFamily="Georgia, serif"
       >
-        Con número de carné: {carnet} {/* Usar el carné dinámico */}
+        Con número de carné: {carnet}
       </Text>
 
       {/* Imagen del Planeta */}

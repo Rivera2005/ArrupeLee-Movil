@@ -5,6 +5,7 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
+  ImageBackground
 } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -91,7 +92,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         }
 
         const response = await fetch(
-          `http://192.242.6.152:8085/arrupe/sv/arrupe/respuestas`
+          `http://192.168.0.10:8085/arrupe/sv/arrupe/respuestas`
         );
 
         if (!response.ok) {
@@ -131,7 +132,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       // Guarda las respuestas del usuario
       for (const respuesta of datosUsuariosRespuestas) {
         const response = await fetch(
-          "http://192.242.6.152:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
+          "http://192.168.0.10:8085/arrupe/sv/arrupe/usuariosRespuestas/agregar",
           {
             method: "POST",
             headers: {
@@ -156,7 +157,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       );
 
       // Si el puntaje es suficiente, completa el 20% faltante
-      if (puntajeTotal >= 60) {
+      if (puntajeTotal >= 90) {
         if (leccionId !== null) {
           await registrarProgresoLeccion(userId, leccionId, 100);
         } else {
@@ -171,7 +172,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       };
 
       const responseGuardarResultados = await fetch(
-        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
+        "http://192.168.0.10:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
         {
           method: "POST",
           headers: {
@@ -211,7 +212,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
     try {
       const response = await fetch(
-        "http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
+        "http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante/agregar",
         {
           method: "POST",
           headers: {
@@ -231,8 +232,12 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   };
 
   return (
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <View style={styles.containerview}>
         <Header />
         <PreguntasListComponente
           pruebaId={pruebaId}
@@ -255,17 +260,22 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         )}
       </View>
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 const windowWidth = Dimensions.get("window").width;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: "#673AB7",
   },
-  container: {
+  containerview: {
     flex: 1,
   },
   terminarButton: {

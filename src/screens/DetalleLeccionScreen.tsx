@@ -5,6 +5,7 @@ import {
   StyleSheet,
   FlatList,
   View,
+  ImageBackground
 } from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
@@ -34,24 +35,25 @@ const DetalleLeccionScreen = ({ route }) => {
   const [forceRender, setForceRender] = useState(false);
   const [lastImageReached, setLastImageReached] = useState(false); // Nuevo estado para controlar si se alcanzó la última imagen
 
-  const lessonIdGuardar = async () => {
-    await AsyncStorage.setItem("currentLeccionId", lessonId);
-  };
 
-  const fetchIntentos = async (userId: string, pruebaId: number) => {
+  const fetchIntentos = async (userId: number, pruebaId: number) => {
     try {
+      const storedUserId = await AsyncStorage.getItem("userId");
       const response = await fetch(
-        "http://192.242.6.152:8085/arrupe/sv/arrupe/resultadosPrueba"
+        "http://192.168.0.10:8085/arrupe/sv/arrupe/resultadosPrueba"
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
 
+      console.log("PruebaID: " + pruebaId)
+      console.log("sUserId: " + storedUserId)
+      console.log("resultados prueba: " + data)
       const intentosFiltrados = data
         .filter(
           (intento: any[]) =>
-            intento[1] === pruebaId && intento[2] === parseInt(userId, 10)
+            intento[1] === pruebaId && intento[2] == storedUserId
         )
         .sort((a, b) => new Date(a[5]).getTime() - new Date(b[5]).getTime())
         .map((intento: any[], index: number) => ({
@@ -61,6 +63,8 @@ const DetalleLeccionScreen = ({ route }) => {
           puntuacion: `${intento[4]}% (${(intento[4] / 10).toFixed(2)} / 10)`,
           indiceConsecutivo: index + 1,
         }));
+        console.log('Intentos Filtrados:', intentosFiltrados);
+
 
       setIntentos(intentosFiltrados);
     } catch (error) {
@@ -71,7 +75,7 @@ const DetalleLeccionScreen = ({ route }) => {
   const fetchPruebaId = async (lessonId: number) => {
     try {
       const response = await fetch(
-        `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas`
+        `http://192.168.0.10:8085/arrupe/sv/arrupe/leccionesPruebas`
       );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -84,7 +88,7 @@ const DetalleLeccionScreen = ({ route }) => {
       if (matchingLesson) {
         const id_leccion_prueba = matchingLesson[0];
         const pruebaResponse = await fetch(
-          `http://192.242.6.152:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
+          `http://192.168.0.10:8085/arrupe/sv/arrupe/leccionesPruebas/${id_leccion_prueba}`
         );
         if (!pruebaResponse.ok) {
           throw new Error(`HTTP error! Status: ${pruebaResponse.status}`);
@@ -112,7 +116,7 @@ const DetalleLeccionScreen = ({ route }) => {
             const pruebaId = await fetchPruebaId(lessonId);
             if (pruebaId) {
               setPruebaId(pruebaId);
-              await fetchIntentos(storedUserId, pruebaId);
+              await fetchIntentos(Number(storedUserId), pruebaId);
             }
           } else {
             console.error("No se encontró el userId en AsyncStorage.");
@@ -165,6 +169,10 @@ const DetalleLeccionScreen = ({ route }) => {
   const data = [{ type: "detail" }, { type: "prueba", data: intentos }];
 
   return (
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor="#512DA8" barStyle="light-content" />
       <Header />
@@ -176,14 +184,19 @@ const DetalleLeccionScreen = ({ route }) => {
         keyExtractor={(item, index) => index.toString()}
       />
     </SafeAreaView>
+    </ImageBackground>
   );
 };
 
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: "#673AB7",
   },
   sectionContainer: {
     padding: 10,

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ImageBackground,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import CustomAlert from "../Components/CustomAlert";
@@ -41,7 +42,7 @@ export default function LoginScreen({ navigation }: Props) {
   const handleLogin = async () => {
     try {
       const response = await fetch(
-        "http://192.1.2.92:8085/arrupe/sv/arrupe/usuarios",
+        "http://192.168.0.10:8085/arrupe/sv/arrupe/usuarios",
         {
           method: "GET",
           headers: {
@@ -60,10 +61,9 @@ export default function LoginScreen({ navigation }: Props) {
       const data = await response.json();
 
       const usuario = data.find((user: any) => user[1] === carnet);
+      console.log(usuario);
 
       if (usuario) {
-        console.log(usuario[15]);
-
         // Comprobar si el usuario está habilitado
         if (usuario[15] === "HABILITADO") {
           // Si el usuario está habilitado, comprobar la contraseña
@@ -75,6 +75,10 @@ export default function LoginScreen({ navigation }: Props) {
             await AsyncStorage.setItem("userApellido", usuario[3]);
             await AsyncStorage.setItem("userCorreo", usuario[13]);
             await AsyncStorage.setItem("userNivelEducativo", usuario[12]);
+            await AsyncStorage.setItem(
+              "idNivelEducativo",
+              usuario[11].toString()
+            );
 
             setAlertMessage("Inicio de sesión exitoso");
             setShowAlert(true);
@@ -111,66 +115,77 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <Image
-          source={require("../../assets/header_AL.png")}
-          style={styles.logo}
-        />
-        <Text style={styles.title}>Identificación</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Carné N°"
-          placeholderTextColor="#999"
-          value={carnet}
-          onChangeText={setCarnet}
-        />
-        <View style={styles.passwordContainer}>
-          <TextInput
-            style={styles.passwordInput}
-            placeholder="Contraseña"
-            placeholderTextColor="#999"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={!showPassword}
+    <ImageBackground
+      source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
+      style={styles.container}
+    >
+      <View style={styles.containerview}>
+        <View style={styles.card}>
+          <Image
+            source={require("../../assets/header_AL.png")}
+            style={styles.logo}
           />
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={styles.eyeIcon}
-          >
-            <Feather
-              name={showPassword ? "eye" : "eye-off"}
-              size={24}
-              color="#999"
+          <Text style={styles.title}>Identificación</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Carné N°"
+            placeholderTextColor="#999"
+            value={carnet}
+            onChangeText={setCarnet}
+          />
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Contraseña"
+              placeholderTextColor="#999"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
             />
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={styles.eyeIcon}
+            >
+              <Feather
+                name={showPassword ? "eye" : "eye-off"}
+                size={24}
+                color="#999"
+              />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
+            <Text style={styles.buttonText}>ENTRAR</Text>
           </TouchableOpacity>
+          <TouchableOpacity>
+            <Text style={styles.forgotPassword}>
+              ¿Ha olvidado su contraseña?
+            </Text>
+          </TouchableOpacity>
+          {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>ENTRAR</Text>
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Text style={styles.forgotPassword}>¿Ha olvidado su contraseña?</Text>
-        </TouchableOpacity>
-        {error ? <Text style={styles.error}>{error}</Text> : null}
+        <Text style={styles.footer}>Proyecto de Fundación Padre Arrupe</Text>
+        <Text style={styles.copyright}>© 2024</Text>
+        {showAlert && (
+          <CustomAlert
+            message={alertMessage}
+            onDismiss={() => setShowAlert(false)}
+          />
+        )}
       </View>
-      <Text style={styles.footer}>Proyecto de Fundación Padre Arrupe</Text>
-      <Text style={styles.copyright}>© 2024</Text>
-      {showAlert && (
-        <CustomAlert
-          message={alertMessage}
-          onDismiss={() => setShowAlert(false)}
-        />
-      )}
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  containerview: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#673AB7",
     padding: 20,
   },
   card: {

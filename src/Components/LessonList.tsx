@@ -41,7 +41,7 @@ const LessonList: React.FC<LessonListProps> = ({
       }
 
       const response = await fetch(
-        `http://192.242.6.152:8085/arrupe/sv/arrupe/lecciones`
+        `http://192.168.0.10:8085/arrupe/sv/arrupe/lecciones`
       );
 
       if (!response.ok) {
@@ -73,7 +73,7 @@ const LessonList: React.FC<LessonListProps> = ({
           let progress = 0;
           try {
             const progressResponse = await fetch(
-              `http://192.242.6.152:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
+              `http://192.168.0.10:8085/arrupe/sv/arrupe/progresoEstudiante/usuario/${userId}/leccion/${lesson[0]}`
             );
 
             if (progressResponse.ok) {
@@ -154,7 +154,6 @@ const LessonList: React.FC<LessonListProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#673AB7",
     paddingTop: 20,
   },
   header: {
