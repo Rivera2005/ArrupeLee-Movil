@@ -43,8 +43,6 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
   useEffect(() => {
     const obtenerProgreso = async () => {
       const storedUserId = await AsyncStorage.getItem("userId");
-      console.log("USERID EN PRUEBACOMPOENTE: " + storedUserId);
-      console.log("lessonId EN PRUEBACOMPOENTE: " + lessonId);
 
       if (storedUserId) {
         const userId = Number(storedUserId); // No es necesario convertir a entero ya que usaremos como string
@@ -57,13 +55,11 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
         if (response.ok) {
           const data: Array<[number, number, string, number, number]> =
             await response.json();
-          console.log("Datos de progreso del servidor:", data); // Aquí se imprime la respuesta
 
           // Filtramos los datos para encontrar el progreso del usuario en la lección actual
           const usuarioProgreso = data.find(
             (item) => item[1] === userId && item[3] === lessonId
           );
-          console.log("usuario progreso: " + usuarioProgreso);
 
           if (usuarioProgreso) {
             setProgreso(usuarioProgreso[4]); // Suponemos que el progreso está en la posición 4 del array

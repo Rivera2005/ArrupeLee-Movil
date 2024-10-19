@@ -41,7 +41,6 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
           const nivelLiterario = await AsyncStorage.getItem("userNivelLiterario");
           const progressLiteral = await AsyncStorage.getItem("progressLiteral");
           const progressInferencial = await AsyncStorage.getItem("progressInferencial");
-          const progressCritico = await AsyncStorage.getItem("progressCritico");
     
           const unlockedLevelsArray = ['LITERAL']; // Desbloqueamos "LITERAL" por defecto
           

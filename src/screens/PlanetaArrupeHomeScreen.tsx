@@ -64,7 +64,6 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
 
       const fetchedLessons = await response.json();
 
-      console.log(idNivelEducativo);
       const leccionesLiteral = fetchedLessons.filter(
         (lesson: any[]) =>
           lesson[3] === "LITERAL" &&
@@ -84,8 +83,6 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
           lesson[2] == idNivelEducativo &&
           lesson[6] === "HABILITADO"
       );
-
-      console.log(leccionesLiteral);
 
       // REVISARRRRRRRRRRR
       const calculateProgress = async (lessons: any[]) => {

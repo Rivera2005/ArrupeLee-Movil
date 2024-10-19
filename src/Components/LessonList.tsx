@@ -123,17 +123,24 @@ const LessonList: React.FC<LessonListProps> = ({
   );
 
   const navigateToLesson = (id: string) => {
-    console.log("LessonID enviado: " + id)
     navigation.navigate("DetalleLecciones", { lessonId: id });
   };
 
-  const renderItem = ({ item }: { item: Lesson }) => (
-    <LessonItem
-      title={item.title}
-      progress={item.progress || 0}
-      onPress={() => navigateToLesson(item.id)}
-    />
-  );
+  const renderItem = ({ item, index }: { item: Lesson; index: number }) => {
+    // Verifica si es la primera lección o si el progreso de la lección anterior es 100
+    const isFirstLesson = index === 0;
+    const isPreviousLessonCompleted =
+      index === 0 || lessons[index - 1].progress === 100;
+
+    return (
+      <LessonItem
+        title={item.title}
+        progress={item.progress || 0}
+        onPress={() => navigateToLesson(item.id)}
+        isLocked={!isFirstLesson && !isPreviousLessonCompleted} // Desbloquea la primera o si la anterior está completada
+      />
+    );
+  };
 
   return (
     <View style={styles.container}>

@@ -36,7 +36,7 @@ const DetalleLeccionScreen = ({ route }) => {
   const [lastImageReached, setLastImageReached] = useState(false); // Nuevo estado para controlar si se alcanzó la última imagen
 
 
-  const fetchIntentos = async (userId: number, pruebaId: number) => {
+  const fetchIntentos = async (pruebaId: number) => {
     try {
       const storedUserId = await AsyncStorage.getItem("userId");
       const response = await fetch(
@@ -47,9 +47,6 @@ const DetalleLeccionScreen = ({ route }) => {
       }
       const data = await response.json();
 
-      console.log("PruebaID: " + pruebaId)
-      console.log("sUserId: " + storedUserId)
-      console.log("resultados prueba: " + data)
       const intentosFiltrados = data
         .filter(
           (intento: any[]) =>
@@ -116,7 +113,7 @@ const DetalleLeccionScreen = ({ route }) => {
             const pruebaId = await fetchPruebaId(lessonId);
             if (pruebaId) {
               setPruebaId(pruebaId);
-              await fetchIntentos(Number(storedUserId), pruebaId);
+              await fetchIntentos(pruebaId);
             }
           } else {
             console.error("No se encontró el userId en AsyncStorage.");

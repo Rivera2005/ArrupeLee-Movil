@@ -61,38 +61,42 @@ export default function LoginScreen({ navigation }: Props) {
       const data = await response.json();
 
       const usuario = data.find((user: any) => user[1] === carnet);
-      console.log(usuario);
 
       if (usuario) {
         // Comprobar si el usuario está habilitado
         if (usuario[15] === "HABILITADO") {
-          // Si el usuario está habilitado, comprobar la contraseña
-          if (usuario[4] === password) {
-            // Inicio de sesión exitoso
-            await AsyncStorage.setItem("userId", usuario[0].toString());
-            await AsyncStorage.setItem("usercarnet", usuario[1].toString());
-            await AsyncStorage.setItem("userNombre", usuario[2]);
-            await AsyncStorage.setItem("userApellido", usuario[3]);
-            await AsyncStorage.setItem("userCorreo", usuario[13]);
-            await AsyncStorage.setItem("userNivelEducativo", usuario[12]);
-            await AsyncStorage.setItem(
-              "idNivelEducativo",
-              usuario[11].toString()
-            );
+          if (usuario[6] === "Estudiante") {
+            // Si el usuario está habilitado, comprobar la contraseña
+            if (usuario[4] === password) {
+              // Inicio de sesión exitoso
+              await AsyncStorage.setItem("userId", usuario[0].toString());
+              await AsyncStorage.setItem("usercarnet", usuario[1].toString());
+              await AsyncStorage.setItem("userNombre", usuario[2]);
+              await AsyncStorage.setItem("userApellido", usuario[3]);
+              await AsyncStorage.setItem("userCorreo", usuario[13]);
+              await AsyncStorage.setItem("userNivelEducativo", usuario[12]);
+              await AsyncStorage.setItem(
+                "idNivelEducativo",
+                usuario[11].toString()
+              );
 
-            setAlertMessage("Inicio de sesión exitoso");
-            setShowAlert(true);
+              setAlertMessage("Inicio de sesión exitoso");
+              setShowAlert(true);
 
-            setTimeout(() => {
-              setShowAlert(false);
-              navigation.navigate("Home");
-            }, 1000);
+              setTimeout(() => {
+                setShowAlert(false);
+                navigation.navigate("Home");
+              }, 1000);
+            } else {
+              // La contraseña es incorrecta
+              setError("Contraseña incorrecta");
+            }
           } else {
-            // La contraseña es incorrecta
-            setError("Contraseña incorrecta");
+            // El usuario no está habilitado
+            
+            setError("Usuario no encontrado");
           }
         } else {
-          // El usuario no está habilitado
           setError("Usuario deshabilitado");
         }
       } else {
@@ -155,11 +159,6 @@ export default function LoginScreen({ navigation }: Props) {
           </View>
           <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>ENTRAR</Text>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Text style={styles.forgotPassword}>
-              ¿Ha olvidado su contraseña?
-            </Text>
           </TouchableOpacity>
           {error ? <Text style={styles.error}>{error}</Text> : null}
         </View>
@@ -250,6 +249,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+    
   },
   passwordInput: {
     flex: 1,
@@ -260,6 +260,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     fontSize: 16,
     backgroundColor: "#FFFFFF",
+    width: "100%",
+    padding: 15,
+    
   },
   eyeIcon: {
     position: "absolute",
