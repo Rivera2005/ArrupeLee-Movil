@@ -143,9 +143,6 @@ const LeccionDetail: React.FC<LeccionDetailProps> = ({
         if (!response.ok) {
           console.error(`Error ${response.status}: ${response.statusText}`);
         } else {
-          console.log(
-            `Progreso del usuario ${userId} registrado con éxito. Progreso: ${porcentajeCompletado}%`
-          );
         }
       } catch (error: any) {
         console.error("Error al actualizar el progreso:", error.message);

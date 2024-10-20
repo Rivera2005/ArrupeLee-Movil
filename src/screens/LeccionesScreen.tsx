@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { View, StyleSheet, ImageBackground } from "react-native";
+import React, { useState } from "react";
+import { View, StyleSheet, ImageBackground, Text } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import LessonList from "../Components/LessonList";
@@ -8,7 +8,6 @@ import LevelProgress from "../Components/LevelProgress";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NavigationBar from "../Components/NavigationBar";
 import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
-
 
 type RootStackParamList = {
   Login: undefined;
@@ -27,18 +26,19 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  const [currentLevel, setCurrentLevel] = useState<string>("LITERAL"); // "LITERAL" como nivel inicial
+  const [currentLevel, setCurrentLevel] = useState<string | null>(null); // Sin nivel inicial predeterminado
   const [unlockedLevels, setUnlockedLevels] = useState<string[]>(["LITERAL"]); // "LITERAL" desbloqueado por defecto
   const [userNivelEducativo, setUserNivelEducativo] = useState<string | null>(
     null
   );
+  const [forceRender, setForceRender] = useState(0); // Estado para forzar el renderizado
 
   useFocusEffect(
     React.useCallback(() => {
       const getUserData = async () => {
         try {
           const nivelEducativo = await AsyncStorage.getItem("userNivelEducativo");
-          const nivelLiterario = await AsyncStorage.getItem("userNivelLiterario");
+          const nivelLiterario = await AsyncStorage.getItem("userNivelLiterario"); // Obtener el nivel desde AsyncStorage
           const progressLiteral = await AsyncStorage.getItem("progressLiteral");
           const progressInferencial = await AsyncStorage.getItem("progressInferencial");
     
@@ -57,14 +57,18 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
           if (nivelEducativo) {
             setUserNivelEducativo(nivelEducativo);
           }
+
           if (nivelLiterario) {
-            setCurrentLevel(nivelLiterario);
+            setCurrentLevel(nivelLiterario); // Asignar el nivel desde AsyncStorage
+          } else {
+            setCurrentLevel("LITERAL"); // Si no hay nivel guardado, usar "LITERAL" como fallback
           }
         } catch (error) {
           console.error("Error al obtener los datos del usuario:", error);
         }
       };
       getUserData();
+      setForceRender((prev) => prev + 1); // Incrementa el estado para forzar el renderizado
     }, []) // El efecto se ejecuta cada vez que se enfoca la pantalla
   );
 
@@ -77,27 +81,36 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
       console.error("Error al guardar el nivel literario:", error);
     }
   };
+
+  if (!currentLevel) {
+    // Si currentLevel no está definido, mostramos un indicador de carga
+    return <View><Text>Cargando...</Text></View>;
+  }
+
   return (
     <ImageBackground
       source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
       style={styles.container}
     >
-    <View style={styles.containerview}>
-      <Header />
-      <NavigationBar />
-      <LevelProgress
-        currentLevel={currentLevel} // Pasamos el nivel actual
-        onLevelPress={handleLevelPress} // Manejo de selección de nivel
-        unlockedLevels={unlockedLevels} // Pasamos los niveles desbloqueados
-      />
-      <LessonList
-        userNivelEducativo={userNivelEducativo}
-        userNivelLiterario={currentLevel} // Nivel actual para cargar las lecciones correctas
-      />
-    </View>
+      <View style={styles.containerview}>
+        <Header />
+        <NavigationBar />
+        <LevelProgress
+          key={forceRender} // Cambia la clave para forzar el re-renderizado
+          currentLevel={currentLevel} // Pasamos el nivel actual
+          onLevelPress={handleLevelPress} // Manejo de selección de nivel
+          unlockedLevels={unlockedLevels} // Pasamos los niveles desbloqueados
+        />
+        <LessonList
+          key={forceRender + 1} // Cambia la clave para forzar el re-renderizado
+          userNivelEducativo={userNivelEducativo}
+          userNivelLiterario={currentLevel} // Nivel actual para cargar las lecciones correctas
+        />
+      </View>
     </ImageBackground>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

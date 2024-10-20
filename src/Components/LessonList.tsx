@@ -80,9 +80,7 @@ const LessonList: React.FC<LessonListProps> = ({
               const progressData = await progressResponse.json();
               progress = progressData.porcentajeCompletado || 0;
             } else {
-              console.log(
-                `No se pudo obtener el progreso para la lección ${lesson[0]}. Estableciendo progreso en 0.`
-              );
+              
             }
           } catch (error: unknown) {
             if (error instanceof Error) {
