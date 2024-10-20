@@ -84,7 +84,6 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
           lesson[6] === "HABILITADO"
       );
 
-      // REVISARRRRRRRRRRR
       const calculateProgress = async (lessons: any[]) => {
         const progressArray = await Promise.all(
           lessons.map(async (lesson: any[]) => {
