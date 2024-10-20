@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Image } from "react-native";
 import OpcionesComponente from "./OpcionesComponente";
+import CustomAlert from "./CustomAlert"; // Asegúrate de importar CustomAlert
+
 
 type PreguntaItemProps = {
   pregunta: string;
@@ -15,13 +17,15 @@ const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
 }) => {
   const [opcionSeleccionada, setOpcionSeleccionada] = useState<string | null>(null);
   const [guardado, setGuardado] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false); // Controla la visibilidad de la alerta
+
 
   const handleGuardarYContinuar = () => {
     if (opcionSeleccionada) {
       onSelectOpcion(opcionSeleccionada);
       setGuardado(true);
     } else {
-      console.warn(`No se seleccionó ninguna opción para la pregunta ${preguntaId}`);
+      setAlertVisible(true); // Muestra la alerta si no hay opción seleccionada
     }
   };
 
@@ -41,6 +45,12 @@ const PreguntasItemComponente: React.FC<PreguntaItemProps> = ({
           />
         )}
       </TouchableOpacity>
+      {alertVisible && (
+        <CustomAlert 
+          message="No seleccionaste una respuesta" // Mensaje corto personalizado
+          onDismiss={() => setAlertVisible(false)} // Cierra la alerta al hacer dismiss
+        />
+      )}
     </View>
   );
 };

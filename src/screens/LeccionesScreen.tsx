@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ImageBackground, Text } from "react-native";
+import { View, StyleSheet, ImageBackground, Text, TouchableOpacity } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import LessonList from "../Components/LessonList";
@@ -8,6 +8,8 @@ import LevelProgress from "../Components/LevelProgress";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NavigationBar from "../Components/NavigationBar";
 import { useFocusEffect } from "@react-navigation/native"; // Importar useFocusEffect
+import { Ionicons } from "@expo/vector-icons"; // Asumiendo que ya tienes Expo instalado
+
 
 type RootStackParamList = {
   Login: undefined;
@@ -93,6 +95,7 @@ const LeccionesScreen: React.FC<LeccionesScreenProps> = () => {
       style={styles.container}
     >
       <View style={styles.containerview}>
+     
         <Header />
         <NavigationBar />
         <LevelProgress

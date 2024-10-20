@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet, Text, ImageBackground, TouchableOpacity } from "react-native";
+import {
+  View,
+  FlatList,
+  StyleSheet,
+  Text,
+  ImageBackground,
+  TouchableOpacity,
+} from "react-native";
 import LessonItem from "../Components/LessonItem";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Header from '../Components/Header';
+import Header from "../Components/Header";
 import { Ionicons } from "@expo/vector-icons"; // Asumiendo que ya tienes Expo instalado
 
 type RootStackParamList = {
@@ -80,7 +87,7 @@ const CompletedLessonsScreen = () => {
       title={item[1] || "Lección sin título"}
       progress={item.progress}
       onPress={() => {
-          navigation.navigate("DetalleLecciones", { lessonId: item[0] });
+        navigation.navigate("DetalleLecciones", { lessonId: item[0] });
       }}
     />
   );
@@ -91,6 +98,7 @@ const CompletedLessonsScreen = () => {
       style={styles.container}
     >
       <View style={styles.containerview}>
+        <Header />
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -98,16 +106,21 @@ const CompletedLessonsScreen = () => {
           <Ionicons name="arrow-back" size={24} color="#FFD700" />
           <Text style={styles.backButtonText}>Regresar</Text>
         </TouchableOpacity>
-        <Header />
         {loading ? (
-          <Text style={styles.loadingText}>Cargando lecciones completadas...</Text>
+          <Text style={styles.loadingText}>
+            Cargando lecciones completadas...
+          </Text>
         ) : (
           <FlatList
             data={completedLessons}
             renderItem={renderItem}
-            keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+            keyExtractor={(item) =>
+              item.id ? item.id.toString() : Math.random().toString()
+            }
             ListEmptyComponent={
-              <Text style={styles.emptyText}>No hay lecciones completadas.</Text>
+              <Text style={styles.emptyText}>
+                No hay lecciones completadas.
+              </Text>
             }
           />
         )}
@@ -128,25 +141,25 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 18,
-    color: '#FFD700',
-    textAlign: 'center',
+    color: "#FFD700",
+    textAlign: "center",
     marginTop: 20,
   },
   emptyText: {
     textAlign: "center",
     marginTop: 20,
     fontSize: 18,
-    color: '#FFD700',
+    color: "#FFD700",
   },
   backButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingBottom: 10,
     marginLeft: 10,
     marginTop: 10,
   },
   backButtonText: {
-    color: '#FFD700',
+    color: "#FFD700",
     fontSize: 16,
     marginLeft: 5,
   },

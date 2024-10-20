@@ -5,14 +5,18 @@ import {
   StyleSheet,
   FlatList,
   View,
-  ImageBackground
+  ImageBackground,
+  TouchableOpacity,
+  Text,
 } from "react-native";
 import LeccionDetail from "../Components/LeccionDetail";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
 import PruebaComponent from "../Components/PruebaComponent";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons"; // Asumiendo que ya tienes Expo instalado
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 const formatearFecha = (fechaISO: string) => {
   const fecha = new Date(fechaISO);
@@ -27,6 +31,12 @@ const formatearFecha = (fechaISO: string) => {
   });
 };
 
+type RootStackParamList = {
+  Login: undefined;
+  Home: undefined;
+  Lecciones: undefined;
+};
+
 const DetalleLeccionScreen = ({ route }) => {
   const { lessonId } = route.params;
   const [intentos, setIntentos] = useState([]);
@@ -34,7 +44,8 @@ const DetalleLeccionScreen = ({ route }) => {
   const [pruebaId, setPruebaId] = useState<number | null>(null);
   const [forceRender, setForceRender] = useState(false);
   const [lastImageReached, setLastImageReached] = useState(false); // Nuevo estado para controlar si se alcanzó la última imagen
-
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const fetchIntentos = async (pruebaId: number) => {
     try {
@@ -60,8 +71,7 @@ const DetalleLeccionScreen = ({ route }) => {
           puntuacion: `${intento[4]}% (${(intento[4] / 10).toFixed(2)} / 10)`,
           indiceConsecutivo: index + 1,
         }));
-        console.log('Intentos Filtrados:', intentosFiltrados);
-
+      console.log("Intentos Filtrados:", intentosFiltrados);
 
       setIntentos(intentosFiltrados);
     } catch (error) {
@@ -148,7 +158,12 @@ const DetalleLeccionScreen = ({ route }) => {
           />
         </View>
       );
-    } else if (item.type === "prueba" && pruebaId !== null && lastImageReached) { // Agregamos la condición de lastImageReached
+    } else if (
+      item.type === "prueba" &&
+      pruebaId !== null &&
+      lastImageReached
+    ) {
+      // Agregamos la condición de lastImageReached
       return (
         <View style={styles.sectionContainer}>
           <PruebaComponent
@@ -170,21 +185,29 @@ const DetalleLeccionScreen = ({ route }) => {
       source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
       style={styles.container}
     >
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#512DA8" barStyle="light-content" />
-      <Header />
-      <NavigationBar />
-      <FlatList
-        data={data}
-        extraData={forceRender} // Añadimos extraData para que re-renderice al cambiar el estado
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
-    </SafeAreaView>
+      <SafeAreaView style={styles.safeArea}>
+        <StatusBar backgroundColor="#512DA8" barStyle="light-content" />
+        
+        <Header />
+        
+        <NavigationBar />
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFD700" />
+          <Text style={styles.backButtonText}>Regresar</Text>
+        </TouchableOpacity>
+        <FlatList
+          data={data}
+          extraData={forceRender} // Añadimos extraData para que re-renderice al cambiar el estado
+          renderItem={renderItem}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </SafeAreaView>
     </ImageBackground>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -197,6 +220,19 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     padding: 10,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 5,
+    paddingBottom: 0,
+    marginLeft: 10,
+    marginTop: 10,
+  },
+  backButtonText: {
+    color: "#FFD700",
+    fontSize: 16,
+    marginLeft: 5,
   },
 });
 

@@ -28,7 +28,7 @@ const CustomAlert: React.FC<Props> = ({ message, onDismiss }) => {
 
         const timer = setTimeout(() => {
             hideAlert();
-        }, 5000);
+        }, 2500);
 
         return () => clearTimeout(timer);
     }, [message]);

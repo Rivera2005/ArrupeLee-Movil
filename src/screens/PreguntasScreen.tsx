@@ -37,6 +37,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
   const [leccionId, setLeccionId] = useState<number | null>(null);
   const [pruebaId, setPruebaId] = useState<number | null>(null);
   const [showAlert, setShowAlert] = useState(false); // Estado para controlar la alerta
+  const [alertMessage, setAlertMessage] = useState(""); // Estado para el mensaje de la alerta
 
   useEffect(() => {
     const getLeccionId = async () => {
@@ -85,11 +86,10 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         const idRespuesta = respuestaUsuario.respuestas;
 
         if (!idRespuesta) {
-          console.error(
-            "ID de respuesta no válido para el usuario:",
-            respuestaUsuario
-          );
-          continue;
+          // Muestra la alerta en lugar de continuar
+          setAlertMessage("Selecciona una respuesta para todas las preguntas.");
+          setShowAlert(true);
+          return; // Detener ejecución hasta que el usuario seleccione todas las respuestas
         }
 
         const response = await fetch(
@@ -145,11 +145,11 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
         if (!response.ok) {
           const errorResponse = await response.json();
-          console.error(
+          /*console.error(
             `Error al guardar la respuesta ${respuesta.preguntas}:`,
             response.status,
             errorResponse
-          );
+          );*/
         }
       }
 
@@ -185,17 +185,18 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       );
 
       if (!responseGuardarResultados.ok) {
-        console.error("Error al guardar los resultados de la prueba.");
+        //console.error("Error al guardar los resultados de la prueba.");
       } else {
         // Muestra la alerta al finalizar exitosamente
+        setAlertMessage("Guardado exitosamente");
         setShowAlert(true);
         // Espera 4 segundos antes de navegar a "Resultados"
         setTimeout(() => {
           navigation.navigate("Resultados", { pruebaId: pruebaId });
-        }, 3500);
+        }, 3000);
       }
     } catch (error) {
-      console.error("Error al guardar las respuestas:", error);
+      //console.error("Error al guardar las respuestas:", error);
     }
   };
 
@@ -240,6 +241,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
     >
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.containerview}>
+          <Header />
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -247,7 +249,6 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
             <Ionicons name="arrow-back" size={24} color="#FFD700" />
             <Text style={styles.backButtonText}>Regresar</Text>
           </TouchableOpacity>
-          <Header />
           <PreguntasListComponente
             pruebaId={pruebaId}
             onTerminarEjercicio={handleTerminarEjercicio}
@@ -265,7 +266,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
 
           {showAlert && (
             <CustomAlert
-              message="Guardado exitosamente"
+              message={alertMessage} // Mostrar el mensaje dinámico
               onDismiss={() => setShowAlert(false)} // Oculta la alerta después de 4 segundos
             />
           )}
@@ -314,7 +315,7 @@ const styles = StyleSheet.create({
   backButton: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+    padding: 0,
     paddingBottom: 0,
     marginLeft: 10,
     marginTop: 5,
