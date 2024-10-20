@@ -26,6 +26,8 @@ const PreguntasListComponente: React.FC<PreguntasListComponenteProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  console.log("PreguntasList: " + pruebaId)
+
   useEffect(() => {
     const fetchPreguntas = async () => {
       try {

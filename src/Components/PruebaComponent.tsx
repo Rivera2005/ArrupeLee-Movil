@@ -77,6 +77,7 @@ const PruebaComponent: React.FC<PruebaComponentProps> = ({
     obtenerProgreso();
   }, [lessonId]); // Agregar lessonId como dependencia para que se vuelva a ejecutar si cambia
 
+  console.log(pruebaId)
   const iniciarPrueba = () => {
     if (progreso !== null && progreso >= 75) {
       if (pruebaId && lessonId) {

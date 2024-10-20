@@ -68,6 +68,9 @@ const NavigationBar = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.menuContainer}>
+            <TouchableOpacity style={styles.closeButton} onPress={toggleMenu}>
+              <Ionicons name="close" size={24} color="white" />
+            </TouchableOpacity>
             <View style={styles.userProfile}>
               <Image
                 source={require("../../assets/perfilDefault.png")}
@@ -83,7 +86,10 @@ const NavigationBar = () => {
                 styles.menuItem,
                 { backgroundColor: getButtonBackgroundColor("Home") },
               ]}
-              onPress={() => navigation.navigate("Home")}
+              onPress={() => {
+                navigation.navigate("Home");
+                toggleMenu();
+              }}
             >
               <Text style={styles.menuItemText}>Mi aventura lectora</Text>
             </TouchableOpacity>
@@ -92,21 +98,30 @@ const NavigationBar = () => {
                 styles.menuItem,
                 { backgroundColor: getButtonBackgroundColor("Niveles") },
               ]}
-              onPress={() => navigation.navigate("BitacoraVuelo")}
+              onPress={() => {
+                navigation.navigate("BitacoraVuelo");
+                toggleMenu();
+              }}
             >
               <Text style={styles.menuItemText}>Mi progreso</Text>
             </TouchableOpacity>
             <View style={styles.menuFooter}>
               <TouchableOpacity
                 style={styles.footerItem}
-                onPress={() => navigation.navigate("Certificados")}
+                onPress={() => {
+                  navigation.navigate("Certificados");
+                  toggleMenu();
+                }}
               >
                 <Ionicons name="school-outline" size={24} color="#666" />
                 <Text style={styles.footerItemText}>Mis certificados</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.footerItem}
-                onPress={() => navigation.navigate("Niveles")}
+                onPress={() => {
+                  navigation.navigate("Niveles");
+                  toggleMenu();
+                }}
               >
                 <Ionicons name="log-out-outline" size={24} color="#FF0000" />
                 <Text style={styles.footerItemTextLogout}>Salir</Text>
@@ -127,12 +142,10 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: '#020006A3',
     height: 60,
-    // Sombra para iOS
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    // Elevación para Android
     elevation: 5,
   },
   iconButton: {
@@ -149,8 +162,16 @@ const styles = StyleSheet.create({
     width: "80%",
     height: "100%",
   },
+  closeButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 1,
+    padding: 5,
+  },
   userProfile: {
     padding: 20,
+    paddingTop: 40,
     backgroundColor: "#673AB7",
     alignItems: "center",
   },

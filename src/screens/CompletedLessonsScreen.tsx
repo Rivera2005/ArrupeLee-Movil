@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, FlatList, StyleSheet, Text, ImageBackground } from "react-native";
+import { View, FlatList, StyleSheet, Text, ImageBackground, TouchableOpacity } from "react-native";
 import LessonItem from "../Components/LessonItem";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from '../Components/Header';
+import { Ionicons } from "@expo/vector-icons"; // Asumiendo que ya tienes Expo instalado
 
 type RootStackParamList = {
   Login: undefined;
@@ -86,24 +87,31 @@ const CompletedLessonsScreen = () => {
 
   return (
     <ImageBackground
-    source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
-    style={styles.container}
-  >
-    <View style={styles.containerview}>
-      <Header />
-      {loading ? (
-        <Text style={styles.loadingText}>Cargando lecciones completadas...</Text>
-      ) : (
-        <FlatList
-          data={completedLessons}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>No hay lecciones completadas.</Text>
-          }
-        />
-      )}
-    </View>
+      source={require("../../assets/bg.png")}
+      style={styles.container}
+    >
+      <View style={styles.containerview}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Ionicons name="arrow-back" size={24} color="#FFD700" />
+          <Text style={styles.backButtonText}>Regresar</Text>
+        </TouchableOpacity>
+        <Header />
+        {loading ? (
+          <Text style={styles.loadingText}>Cargando lecciones completadas...</Text>
+        ) : (
+          <FlatList
+            data={completedLessons}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>No hay lecciones completadas.</Text>
+            }
+          />
+        )}
+      </View>
     </ImageBackground>
   );
 };
@@ -129,6 +137,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 18,
     color: '#FFD700',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    marginLeft: 10,
+    marginTop: 10,
+  },
+  backButtonText: {
+    color: '#FFD700',
+    fontSize: 16,
+    marginLeft: 5,
   },
 });
 

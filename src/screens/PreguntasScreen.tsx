@@ -5,7 +5,7 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
-  ImageBackground
+  ImageBackground,
 } from "react-native";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
@@ -14,6 +14,7 @@ import Header from "../Components/Header";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import CustomAlert from "../Components/CustomAlert"; // Importa tu CustomAlert
+import { Ionicons } from "@expo/vector-icons"; // Asumiendo que ya tienes Expo instalado
 
 type RootStackParamList = {
   Login: undefined;
@@ -171,6 +172,7 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
         puntaje: puntajeTotal,
       };
 
+      console.log("PreguntasScreen: " + pruebaId);
       const responseGuardarResultados = await fetch(
         "http://192.168.0.10:8085/arrupe/sv/arrupe/resultadosPrueba/agregar",
         {
@@ -236,30 +238,39 @@ const PreguntasScreen: React.FC<PreguntasScreenProps> = () => {
       source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
       style={styles.container}
     >
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.containerview}>
-        <Header />
-        <PreguntasListComponente
-          pruebaId={pruebaId}
-          onTerminarEjercicio={handleTerminarEjercicio}
-          renderFooter={(datosUsuariosRespuestas: any) => (
-            <TouchableOpacity
-              style={styles.terminarButton}
-              onPress={() => handleTerminarEjercicio(datosUsuariosRespuestas)}
-            >
-              <Text style={styles.terminarButtonText}>Terminar ejercicio</Text>
-            </TouchableOpacity>
-          )}
-        />
-
-        {showAlert && (
-          <CustomAlert
-            message="Guardado exitosamente"
-            onDismiss={() => setShowAlert(false)} // Oculta la alerta después de 4 segundos
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.containerview}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}
+          >
+            <Ionicons name="arrow-back" size={24} color="#FFD700" />
+            <Text style={styles.backButtonText}>Regresar</Text>
+          </TouchableOpacity>
+          <Header />
+          <PreguntasListComponente
+            pruebaId={pruebaId}
+            onTerminarEjercicio={handleTerminarEjercicio}
+            renderFooter={(datosUsuariosRespuestas: any) => (
+              <TouchableOpacity
+                style={styles.terminarButton}
+                onPress={() => handleTerminarEjercicio(datosUsuariosRespuestas)}
+              >
+                <Text style={styles.terminarButtonText}>
+                  Terminar ejercicio
+                </Text>
+              </TouchableOpacity>
+            )}
           />
-        )}
-      </View>
-    </SafeAreaView>
+
+          {showAlert && (
+            <CustomAlert
+              message="Guardado exitosamente"
+              onDismiss={() => setShowAlert(false)} // Oculta la alerta después de 4 segundos
+            />
+          )}
+        </View>
+      </SafeAreaView>
     </ImageBackground>
   );
 };
@@ -299,6 +310,19 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
     fontSize: 16,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    paddingBottom: 0,
+    marginLeft: 10,
+    marginTop: 5,
+  },
+  backButtonText: {
+    color: "#FFD700",
+    fontSize: 16,
+    marginLeft: 5,
   },
 });
 

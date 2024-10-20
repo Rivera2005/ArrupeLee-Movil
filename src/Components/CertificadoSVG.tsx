@@ -68,7 +68,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         x="10"
         y="95"
         fontWeight="bold"
-        fontFamily="Georgia, serif"
+        fontFamily="Baskerville, serif"
       >
         Certificado de Finalización
       </Text>
@@ -79,7 +79,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         fontSize="10"
         x="10"
         y="115"
-        fontFamily="Georgia, serif"
+        fontFamily="Baskerville, serif"
       >
         Por este medio Arrupe Lee certifica que el estudiante:
       </Text>
@@ -91,7 +91,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         x="10"
         y="138"
         fontWeight="bold"
-        fontFamily="Georgia, serif"
+        fontFamily="Baskerville, serif"
       >
         {`${nombre} ${apellido}`}
       </Text>
@@ -102,7 +102,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         fontSize="10"
         x="10"
         y="158"
-        fontFamily="Georgia, serif"
+        fontFamily="Baskerville, serif"
       >
         Con número de carné: {carnet}
       </Text>
@@ -123,7 +123,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         fontSize="10"
         x="10"
         y="178"
-        fontFamily="Georgia, serif"
+        fontFamily="Baskerville, serif"
       >
         Ha completado satisfactoriamente el Nivel {nivel}
       </Text>
@@ -134,7 +134,7 @@ const CertificadoSVG: React.FC<CertificadoSVGProps & { carnet: string }> = ({
         fontSize="10"
         x="10"
         y="216"
-        fontFamily="Georgia, serif"
+        fontFamily="Baskerville, serif"
       >
         Fecha: {fecha}
       </Text>
