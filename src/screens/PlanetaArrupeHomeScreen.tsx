@@ -15,6 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import Header from "../Components/Header";
 import NavigationBar from "../Components/NavigationBar";
 import BitacoraDeVuelo from "../Components/BitacoraDeVuelo";
+import CustomAlert from "../Components/CustomAlert";
 
 type RootStackParamList = {
   Login: undefined;
@@ -37,7 +38,9 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
   const [progressLiteral, setProgressLiteral] = useState(0);
   const [progressInferencial, setProgressInferencial] = useState(0);
   const [progressCritico, setProgressCritico] = useState(0);
-  const [shouldRenderNavBar, setShouldRenderNavBar] = useState(false); // Estado para forzar el render
+  const [shouldRenderNavBar, setShouldRenderNavBar] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const nav = useNavigation();
 
@@ -123,9 +126,50 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
 
       if (literalProgress >= 100) {
         newUnlockedLevels.push("INFERENCIAL");
+
+        const alertShownLiteral = await AsyncStorage.getItem(
+          "alertShownLiteral"
+        );
+        if (!alertShownLiteral) {
+          setAlertMessage(
+            "¡Increíble! Has completado el Nivel Literal y obtuviste tu certificado. ¡Sigue así!"
+          );
+          setShowAlert(true);
+          await AsyncStorage.setItem("alertShownLiteral", "true");
+        }
+      } else {
+        await AsyncStorage.setItem("alertShownLiteral", "");
       }
       if (inferencialProgress >= 100) {
         newUnlockedLevels.push("CRITICO");
+
+        const alertShownInferencial = await AsyncStorage.getItem(
+          "alertShownInferencial"
+        );
+        if (!alertShownInferencial) {
+          setAlertMessage(
+            "¡Felicitaciones! El Nivel Inferencial es tuyo. ¡Vamos por el siguiente!"
+          );
+          setShowAlert(true);
+          await AsyncStorage.setItem("alertShownInferencial", "true");
+        }
+      } else {
+        await AsyncStorage.setItem("alertShownInferencial", "");
+      }
+
+      if (criticoProgress >= 100) {
+        const alertShownCritico = await AsyncStorage.getItem(
+          "alertShownCritico"
+        );
+        if (!alertShownCritico) {
+          setAlertMessage(
+            "¡Felicidades! Has conseguido el Certificado de Nivel Critico."
+          );
+          setShowAlert(true);
+          await AsyncStorage.setItem("alertShownCritico", "true");
+        }
+      } else {
+        await AsyncStorage.setItem("alertShownCritico", "");
       }
 
       setUnlockedLevels(newUnlockedLevels);
@@ -141,7 +185,7 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
   useFocusEffect(
     useCallback(() => {
       fetchProgressData();
-      setShouldRenderNavBar(prev => !prev); // Cambiar el estado para forzar render
+      setShouldRenderNavBar((prev) => !prev); // Cambiar el estado para forzar render
     }, [])
   );
 
@@ -159,77 +203,90 @@ export default function PlanetArrupeHomeScreen({ navigation }: Props) {
       source={require("../../assets/bg.png")} // Reemplaza con la URL de tu imagen o una ruta local
       style={styles.container}
     >
-    <SafeAreaView style={styles.containerview}>
-      <Header />
-      <NavigationBar key={shouldRenderNavBar ? 'nav-bar' : 'nav-bar-inactive'} />
-      <ScrollView style={styles.content}>
-        {userNombre && (
-          <Text style={styles.welcomeMessage}>
-            <Text style={styles.userName}>Bienvenido, {userNombre}</Text>{" "}
-            <Text style={styles.adventure}>¡Comienza tu aventura lectora!</Text>
-          </Text>
+      <SafeAreaView style={styles.containerview}>
+        {showAlert && (
+          <CustomAlert
+            message={alertMessage} // Mostrar el mensaje dinámico
+            onDismiss={() => setShowAlert(false)} // Oculta la alerta después de 4 segundos
+          />
         )}
-
-        <View style={styles.planetsSection}>
-          <TouchableOpacity
-            onPress={() =>
-              unlockedLevels.includes("LITERAL") && handleButtonPress("LITERAL")
-            }
-            disabled={!unlockedLevels.includes("LITERAL")}
-          >
-            <Image
-              source={require("../../assets/nivelLiteral.png")}
-              style={[
-                styles.planet,
-                !unlockedLevels.includes("LITERAL") && styles.lockedPlanet,
-              ]}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              unlockedLevels.includes("INFERENCIAL") &&
-              handleButtonPress("INFERENCIAL")
-            }
-            disabled={!unlockedLevels.includes("INFERENCIAL")}
-          >
-            <Image
-              source={require("../../assets/nivelInferencial.png")}
-              style={[
-                styles.planet,
-                !unlockedLevels.includes("INFERENCIAL") && styles.lockedPlanet,
-              ]}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() =>
-              unlockedLevels.includes("CRITICO") && handleButtonPress("CRITICO")
-            }
-            disabled={!unlockedLevels.includes("CRITICO")}
-          >
-            <Image
-              source={require("../../assets/nivelCritico.png")}
-              style={[
-                styles.planet,
-                !unlockedLevels.includes("CRITICO") && styles.lockedPlanet,
-              ]}
-            />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.adventureSection}>
-          <Text style={styles.adventureTitle}>Mi aventura lectora</Text>
-        </View>
-
-        {/* Pasar los datos de progreso a BitacoraDeVuelo */}
-        <BitacoraDeVuelo
-          progressLiteral={progressLiteral}
-          progressInferencial={progressInferencial}
-          progressCritico={progressCritico}
+        <Header />
+        <NavigationBar
+          key={shouldRenderNavBar ? "nav-bar" : "nav-bar-inactive"}
         />
-      </ScrollView>
-    </SafeAreaView>
+        <ScrollView style={styles.content}>
+          {userNombre && (
+            <Text style={styles.welcomeMessage}>
+              <Text style={styles.userName}>Bienvenido, {userNombre}</Text>{" "}
+              <Text style={styles.adventure}>
+                ¡Comienza tu aventura lectora!
+              </Text>
+            </Text>
+          )}
+
+          <View style={styles.planetsSection}>
+            <TouchableOpacity
+              onPress={() =>
+                unlockedLevels.includes("LITERAL") &&
+                handleButtonPress("LITERAL")
+              }
+              disabled={!unlockedLevels.includes("LITERAL")}
+            >
+              <Image
+                source={require("../../assets/nivelLiteral.png")}
+                style={[
+                  styles.planet,
+                  !unlockedLevels.includes("LITERAL") && styles.lockedPlanet,
+                ]}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                unlockedLevels.includes("INFERENCIAL") &&
+                handleButtonPress("INFERENCIAL")
+              }
+              disabled={!unlockedLevels.includes("INFERENCIAL")}
+            >
+              <Image
+                source={require("../../assets/nivelInferencial.png")}
+                style={[
+                  styles.planet,
+                  !unlockedLevels.includes("INFERENCIAL") &&
+                    styles.lockedPlanet,
+                ]}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() =>
+                unlockedLevels.includes("CRITICO") &&
+                handleButtonPress("CRITICO")
+              }
+              disabled={!unlockedLevels.includes("CRITICO")}
+            >
+              <Image
+                source={require("../../assets/nivelCritico.png")}
+                style={[
+                  styles.planet,
+                  !unlockedLevels.includes("CRITICO") && styles.lockedPlanet,
+                ]}
+              />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.adventureSection}>
+            <Text style={styles.adventureTitle}>Mi aventura lectora</Text>
+          </View>
+
+          {/* Pasar los datos de progreso a BitacoraDeVuelo */}
+          <BitacoraDeVuelo
+            progressLiteral={progressLiteral}
+            progressInferencial={progressInferencial}
+            progressCritico={progressCritico}
+          />
+        </ScrollView>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
